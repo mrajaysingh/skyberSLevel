@@ -44,13 +44,17 @@ function getErrorMessage(input: HTMLInputElement | HTMLSelectElement | HTMLTextA
   } else if (input.validity.patternMismatch) {
     return input.title || input.getAttribute('data-pattern-error') || "Please match the required format";
   } else if (input.validity.tooShort) {
-    return `Please enter at least ${input.minLength} characters`;
+    const minLength = (input as HTMLInputElement | HTMLTextAreaElement).minLength ?? 0;
+    return `Please enter at least ${minLength} characters`;
   } else if (input.validity.tooLong) {
-    return `Please enter no more than ${input.maxLength} characters`;
+    const maxLength = (input as HTMLInputElement | HTMLTextAreaElement).maxLength ?? 0;
+    return `Please enter no more than ${maxLength} characters`;
   } else if (input.validity.rangeUnderflow) {
-    return `Value must be at least ${input.min}`;
+    const min = (input as HTMLInputElement).min ?? '';
+    return `Value must be at least ${min}`;
   } else if (input.validity.rangeOverflow) {
-    return `Value must be at most ${input.max}`;
+    const max = (input as HTMLInputElement).max ?? '';
+    return `Value must be at most ${max}`;
   } else if (input.validity.stepMismatch) {
     return `Please enter a valid step value`;
   } else if (input.validity.badInput) {
