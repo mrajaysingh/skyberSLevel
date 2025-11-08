@@ -575,7 +575,8 @@ const getAuthjsSession = async (req, res) => {
 const oauthGithubStart = async (req, res) => {
   try {
     const clientId = process.env.GITHUB_CLIENT_ID;
-    const redirectBase = `${req.protocol}://${req.get('host')}`;
+    // Use BACKEND_URL if set, otherwise construct from request (for development)
+    const redirectBase = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
     const redirectUri = `${redirectBase}/api/auth/oauth/github/callback`;
 
     if (!clientId) return res.status(500).send('GitHub OAuth not configured');
@@ -827,7 +828,8 @@ const oauthGithubCallback = async (req, res) => {
 const oauthGoogleStart = async (req, res) => {
   try {
     const clientId = process.env.GOOGLE_CLIENT_ID;
-    const redirectBase = `${req.protocol}://${req.get('host')}`;
+    // Use BACKEND_URL if set, otherwise construct from request (for development)
+    const redirectBase = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
     const redirectUri = `${redirectBase}/api/auth/oauth/google/callback`;
     if (!clientId) return res.status(500).send('Google OAuth not configured');
 
@@ -894,7 +896,8 @@ const oauthGoogleCallback = async (req, res) => {
 
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const redirectBase = `${req.protocol}://${req.get('host')}`;
+    // Use BACKEND_URL if set, otherwise construct from request (for development)
+    const redirectBase = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
     const redirectUri = `${redirectBase}/api/auth/oauth/google/callback`;
     if (!clientId || !clientSecret) {
       return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?error=google_oauth_config`);
