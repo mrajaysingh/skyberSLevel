@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useDashboardTheme } from "./dashboard-theme-provider";
@@ -25,6 +26,7 @@ import {
   LayoutDashboard
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSecurity } from "@/components/security/page-security";
 
 interface MenuItem {
   id: string;
@@ -32,9 +34,19 @@ interface MenuItem {
   icon: React.ReactNode;
   href?: string;
   children?: MenuItem[];
+  target?: string;
+  rel?: string;
 }
 
 const menuItems: MenuItem[] = [
+  {
+    id: 'visit-site',
+    label: 'Visit Site',
+    icon: <Globe className="h-4 w-4" />,
+    href: '/',
+    target: '_blank',
+    rel: 'noopener noreferrer'
+  },
   {
     id: 'home',
     label: 'Home',
@@ -107,7 +119,13 @@ const menuItems: MenuItem[] = [
         label: 'Servers',
         icon: <Server className="h-4 w-4" />,
         href: '/auth/dashboards/user/super-admin/system/servers'
-      }
+          },
+          {
+            id: 'logs',
+            label: 'Logs',
+            icon: <FileText className="h-4 w-4" />,
+            href: '/auth/dashboards/user/super-admin/system/logs'
+          }
     ]
   },
   {
@@ -212,6 +230,7 @@ const SidebarItem = ({ item, isActive, isExpanded, onToggle, level = 0 }: Sideba
   const { theme } = useDashboardTheme();
   const hasChildren = item.children && item.children.length > 0;
   const isHome = item.id === 'home';
+  const isVisit = item.id === 'visit-site';
   const isDark = theme === 'dark';
   
   // Check if any child is active
@@ -226,11 +245,14 @@ const SidebarItem = ({ item, isActive, isExpanded, onToggle, level = 0 }: Sideba
           onClick={onToggle}
           className={cn(
             "w-full flex items-center justify-between px-4 py-3 text-sm font-medium transition-colors rounded-lg",
-            isDark ? "hover:bg-gray-800/50" : "hover:bg-gray-100",
             level > 0 && "pl-8",
-            isHome 
-              ? "text-white bg-[#17D492]/10 hover:bg-[#17D492]/20" 
-              : isDark ? "text-gray-400 hover:text-gray-300" : "text-gray-700 hover:text-gray-900"
+            (isHome)
+              ? (isDark 
+                  ? "text-[#17D492] bg-[#17D492]/15 hover:bg-[#17D492]/25"
+                  : "text-emerald-800 bg-emerald-50 hover:bg-emerald-100")
+              : (isDark 
+                  ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-gray-100")
           )}
         >
           <div className="flex items-center gap-3">
@@ -264,13 +286,24 @@ const SidebarItem = ({ item, isActive, isExpanded, onToggle, level = 0 }: Sideba
   return (
     <Link
       href={item.href || '#'}
+      target={item.target}
+      rel={item.rel}
       className={cn(
-        "flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors rounded-lg",
-        isDark ? "hover:bg-gray-800/50" : "hover:bg-gray-100",
+        isVisit
+          ? "flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all rounded-lg border"
+          : "flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors rounded-lg",
         level > 0 && "pl-8",
-        isHome || isActive
-          ? "text-white bg-[#17D492]/10 hover:bg-[#17D492]/20"
-          : isDark ? "text-gray-400 hover:text-gray-300" : "text-gray-700 hover:text-gray-900"
+        isVisit
+          ? (isDark
+              ? "bg-gray-900/40 text-gray-200 border-transparent hover:bg-black hover:text-white hover:border-white hover:rounded-[20px]"
+              : "bg-gray-100 text-gray-800 border-transparent hover:bg-black hover:text-white hover:border-white hover:rounded-[20px]")
+          : (isHome || isActive)
+          ? (isDark 
+              ? "text-[#17D492] bg-[#17D492]/15 hover:bg-[#17D492]/25"
+              : "text-emerald-800 bg-emerald-50 hover:bg-emerald-100")
+          : (isDark 
+              ? "text-gray-300 hover:text-white hover:bg-gray-800/50"
+              : "text-gray-700 hover:text-gray-900 hover:bg-gray-100")
       )}
     >
       {item.icon}
@@ -284,6 +317,93 @@ export function SuperAdminSidebar() {
   const pathname = usePathname();
   const { theme } = useDashboardTheme();
   const isDark = theme === 'dark';
+  const { user } = useSecurity();
+  const avatarSrc = user?.avatar || "/Default/profileImg/defaultProfile.png";
+  const sidebarName = (() => {
+    const segments = [user?.firstName, user?.middleName, user?.lastName]
+      .map((s) => (s || "").trim())
+      .filter(Boolean);
+    if (segments.length) return segments.join(" ");
+    return user?.name || "SKYBER User";
+  })();
+  const sidebarRole = (() => {
+    const base = user?.role;
+    if (!base) return 'Super Admin';
+    return base
+      .split(/[-\s]+/)
+      .map((part) => part ? part.charAt(0).toUpperCase() + part.slice(1) : part)
+      .join(' ');
+  })();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileBtnRef = useRef<HTMLButtonElement | null>(null);
+  const profileMenuRef = useRef<HTMLDivElement | null>(null);
+  const [profileMenuPos, setProfileMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const hoverState = useRef<{ overBtn: boolean; overMenu: boolean; closeTimer: number | null }>({ overBtn: false, overMenu: false, closeTimer: null });
+
+  const scheduleCloseIfNotHovering = () => {
+    const state = hoverState.current;
+    if (state.closeTimer) {
+      window.clearTimeout(state.closeTimer);
+      state.closeTimer = null;
+    }
+    state.closeTimer = window.setTimeout(() => {
+      const s = hoverState.current;
+      if (!s.overBtn && !s.overMenu) {
+        setIsProfileOpen(false);
+      }
+    }, 150); // small delay to allow moving between button and menu
+  };
+
+  const updateProfileMenuPosition = () => {
+    if (!profileBtnRef.current) return;
+    const rect = profileBtnRef.current.getBoundingClientRect();
+    const intendedLeft = rect.right + 5 + window.scrollX; // 5px gap from sidebar
+    let top = rect.top + window.scrollY - 8;
+
+    const menuEl = profileMenuRef.current;
+    const menuHeight = menuEl?.offsetHeight ?? 0;
+    const menuWidth = menuEl?.offsetWidth ?? 260;
+
+    const minTop = window.scrollY + 12;
+    const maxTop = window.scrollY + window.innerHeight - menuHeight - 12;
+    top = Math.max(minTop, Math.min(top, maxTop));
+
+    const viewportRight = window.scrollX + window.innerWidth;
+    const left = Math.min(intendedLeft, viewportRight - menuWidth - 5);
+
+    setProfileMenuPos({ top, left });
+  };
+
+  useEffect(() => {
+    if (!isProfileOpen) return;
+    // position after mount and next frame to capture size
+    updateProfileMenuPosition();
+    requestAnimationFrame(() => updateProfileMenuPosition());
+
+    const handleClick = (e: MouseEvent) => {
+      if (!profileMenuRef.current || !profileBtnRef.current) return;
+      if (
+        !profileMenuRef.current.contains(e.target as Node) &&
+        !profileBtnRef.current.contains(e.target as Node)
+      ) {
+        setIsProfileOpen(false);
+      }
+    };
+    const handleResize = () => updateProfileMenuPosition();
+    window.addEventListener('click', handleClick);
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleResize, true);
+    return () => {
+      window.removeEventListener('click', handleClick);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleResize, true);
+    };
+  }, [isProfileOpen]);
+
+  // Close menu on route change
+  useEffect(() => {
+    setIsProfileOpen(false);
+  }, [pathname]);
 
   const toggleItem = (itemId: string) => {
     setExpandedItems((prev) => {
@@ -302,9 +422,9 @@ export function SuperAdminSidebar() {
       "fixed left-0 top-0 h-screen w-64 border-r z-30 transition-colors flex flex-col",
       isDark ? "bg-black border-gray-800" : "bg-white border-gray-200"
     )}>
-      {/* Sidebar Header - Sticky at top */}
+      {/* Sidebar Header - Sticky at top (match main header height) */}
       <div className={cn(
-        "px-6 py-4 border-b flex-shrink-0",
+        "px-6 h-16 border-b flex-shrink-0 flex items-center",
         isDark ? "border-gray-800 bg-black" : "border-gray-200 bg-white"
       )}>
         <div className="flex items-center gap-2">
@@ -321,7 +441,7 @@ export function SuperAdminSidebar() {
       </div>
 
       {/* Navigation Menu - Scrollable */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto sidebar-scroll">
         {menuItems.map((item) => (
           <SidebarItem
             key={item.id}
@@ -335,15 +455,113 @@ export function SuperAdminSidebar() {
 
       {/* Sidebar Footer - Sticky at bottom */}
       <div className={cn(
-        "px-6 py-4 border-t flex-shrink-0",
+        "px-6 py-4 border-t flex-shrink-0 relative",
         isDark ? "border-gray-800 bg-black" : "border-gray-200 bg-white"
       )}>
+        <button
+          ref={profileBtnRef}
+          onClick={() => setIsProfileOpen((o) => !o)}
+          onMouseEnter={() => {
+            hoverState.current.overBtn = true;
+            setIsProfileOpen(true);
+            requestAnimationFrame(() => updateProfileMenuPosition());
+          }}
+          onMouseLeave={() => {
+            hoverState.current.overBtn = false;
+            scheduleCloseIfNotHovering();
+          }}
+          className={cn(
+            "w-full flex items-center gap-3 px-2 py-2 mb-3 rounded-lg border transition-colors",
+            isDark ? "border-gray-800 hover:bg-gray-900" : "border-gray-200 hover:bg-gray-100"
+          )}
+        >
+          <img
+            src={avatarSrc}
+            alt="User profile"
+            className="h-8 w-8 rounded-full object-cover border border-gray-200"
+          />
+          <div className="flex flex-col items-start">
+            <span className={cn(
+              "text-sm font-medium",
+              isDark ? "text-white" : "text-gray-900"
+            )}>{sidebarName}</span>
+            <span className={cn(
+              "text-xs",
+              isDark ? "text-gray-500" : "text-gray-500"
+            )}>{sidebarRole}</span>
+          </div>
+			<span className={cn("ml-auto", isDark ? "text-gray-500" : "text-gray-400")}> 
+				{isProfileOpen ? (
+					<ChevronDown className="h-4 w-4" />
+				) : (
+					<ChevronRight className="h-4 w-4" />
+				)}
+			</span>
+        </button>
+        {isProfileOpen && typeof window !== 'undefined' && createPortal(
+          <div
+            ref={profileMenuRef}
+            style={{ top: profileMenuPos.top, left: profileMenuPos.left }}
+            className={cn(
+              "fixed z-50 min-w-56 rounded-xl border shadow-xl p-3",
+              isDark ? "bg-black/95 border-gray-800" : "bg-white border-gray-200"
+            )}
+            onMouseEnter={() => { hoverState.current.overMenu = true; }}
+            onMouseLeave={() => { hoverState.current.overMenu = false; scheduleCloseIfNotHovering(); }}
+          >
+            <div
+              className={cn(
+                "flex items-center gap-3 px-1 pb-3 border-b",
+                isDark ? "border-gray-800" : "border-gray-200"
+              )}
+            >
+              <img
+                src={avatarSrc}
+                alt="User profile"
+                className="h-9 w-9 rounded-full object-cover border border-gray-200"
+              />
+              <div className="flex flex-col">
+                <span className={cn(
+                  "text-sm font-medium",
+                  isDark ? "text-white" : "text-gray-900"
+                )}>{sidebarName}</span>
+                <span className={cn(
+                  "text-xs",
+                  isDark ? "text-gray-500" : "text-gray-500"
+                )}>{sidebarRole}</span>
+              </div>
+            </div>
+            <div className="pt-3 space-y-1">
+              <Link
+                href="/auth/dashboards/user/super-admin/profile"
+                className={cn(
+                  "block text-sm px-3 py-2 rounded-md",
+                  isDark ? "text-gray-300 hover:bg-gray-800" : "text-gray-700 hover:bg-gray-100"
+                )}
+                onClick={() => setIsProfileOpen(false)}
+              >
+                Edit Profile
+              </Link>
+              <Link
+                href="/auth/dashboards/user/super-admin/edit-site"
+                className={cn(
+                  "block text-sm px-3 py-2 rounded-md",
+                  isDark ? "text-gray-300 hover:bg-gray-800" : "text-gray-700 hover:bg-gray-100"
+                )}
+                onClick={() => setIsProfileOpen(false)}
+              >
+                Edit site
+              </Link>
+            </div>
+          </div>,
+          document.body
+        )}
         <div className={cn(
           "text-xs",
           isDark ? "text-gray-500" : "text-gray-400"
         )}>
           <p>Version 1.0.0</p>
-          <p className="mt-1">© {new Date().getFullYear()} SKYBER</p>
+			<p className="mt-1">© 2025 SKYBER</p>
         </div>
       </div>
     </aside>

@@ -9,14 +9,23 @@ interface SecurityContextType {
         id: string;
         email: string;
         name: string | null;
+        firstName?: string | null;
+        middleName?: string | null;
+        lastName?: string | null;
+        username?: string | null;
         role: string;
         planTier: string;
         status?: string;
         currentIp?: string;
         lastIp?: string;
+        avatar?: string | null;
+        banner?: string | null;
+        designation?: string | null;
+        company?: string | null;
       } | null;
       login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
       logout: () => Promise<void>;
+      updateUser: (updates: Partial<SecurityContextType['user']>) => void;
     }
 
 const SecurityContext = createContext<SecurityContextType | undefined>(undefined);
@@ -30,43 +39,89 @@ export const useSecurity = () => {
 };
 
 export function SecurityProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<SecurityContextType['user']>(null);
   const router = useRouter();
   const pathname = usePathname();
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    if (window.location?.pathname === '/login') return false;
+    return !!localStorage.getItem('sessionToken');
+  });
+  const [user, setUser] = useState<SecurityContextType['user']>(() => {
+    if (typeof window === 'undefined') return null;
+    if (window.location?.pathname === '/login') return null;
+    const raw = localStorage.getItem('userData');
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch { return null; }
+  });
 
   // Backend API URL
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-  // Check localStorage on mount
-  useEffect(() => {
-    const sessionToken = localStorage.getItem("sessionToken");
-    const userData = localStorage.getItem("userData");
-    
-    if (sessionToken) {
-      setIsAuthenticated(true);
-      if (userData) {
-        try {
-          setUser(JSON.parse(userData));
-        } catch (e) {
-          console.error("Error parsing user data:", e);
-        }
-      }
-    }
-  }, []);
-
-  // Protect auth routes
+  // Immediately clear cached auth when user is on the login page
   useEffect(() => {
     if (typeof window === "undefined") return;
-    
-    const sessionToken = localStorage.getItem("sessionToken");
-    const isAuthRoute = pathname?.startsWith("/auth/dashboards");
-    
-    if (isAuthRoute && !sessionToken) {
-      // Store the intended destination
-      sessionStorage.setItem("skyber_redirect_after_login", pathname || "/");
-      router.push("/login");
+    if (pathname === "/login") {
+      try {
+        localStorage.removeItem("sessionId");
+        localStorage.removeItem("sessionToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("userData");
+        localStorage.removeItem("skyber_authenticated");
+        sessionStorage.clear();
+      } catch (_) {}
+      setIsAuthenticated(false);
+      setUser(null);
     }
+  }, [pathname]);
+
+  // Protect auth routes + verify token when present
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const isAuthRoute = pathname?.startsWith("/auth/dashboards");
+    const sessionToken = localStorage.getItem("sessionToken");
+
+    const redirectToLogin = () => {
+      sessionStorage.setItem("skyber_redirect_after_login", pathname || "/");
+      try {
+        localStorage.removeItem("sessionToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("userData");
+        localStorage.removeItem("skyber_authenticated");
+      } catch (_) {}
+      setIsAuthenticated(false);
+      setUser(null);
+      router.push("/login");
+    };
+
+    // If on protected route without token → redirect
+    if (isAuthRoute && !sessionToken) {
+      redirectToLogin();
+      return;
+    }
+
+    // If token exists on protected route, verify it once
+    const verify = async () => {
+      try {
+        if (!isAuthRoute || !sessionToken) return;
+        const r = await fetch(`${API_URL}/api/auth/verify`, {
+          headers: { 'Authorization': `Bearer ${sessionToken}` },
+          cache: 'no-store'
+        });
+        if (!r.ok) {
+          redirectToLogin();
+          return;
+        }
+        const j = await r.json().catch(() => ({}));
+        if (!j?.success) {
+          redirectToLogin();
+        }
+      } catch (_) {
+        redirectToLogin();
+      }
+    };
+    verify();
   }, [pathname, router]);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
@@ -121,6 +176,17 @@ export function SecurityProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateUser = (updates: Partial<SecurityContextType['user']>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, ...updates };
+      try {
+        localStorage.setItem('userData', JSON.stringify(next));
+      } catch (_) {}
+      return next;
+    });
+  };
+
   const logout = async (): Promise<void> => {
     try {
       const sessionToken = localStorage.getItem("sessionToken");
@@ -151,7 +217,7 @@ export function SecurityProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <SecurityContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <SecurityContext.Provider value={{ isAuthenticated, user, login, logout, updateUser }}>
       {children}
     </SecurityContext.Provider>
   );

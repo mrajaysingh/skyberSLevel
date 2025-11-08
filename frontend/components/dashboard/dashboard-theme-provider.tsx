@@ -20,7 +20,8 @@ export const useDashboardTheme = () => {
 };
 
 export function DashboardThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<DashboardTheme>("dark");
+  // Default to light to avoid low-contrast text on first paint
+  const [theme, setThemeState] = useState<DashboardTheme>("light");
 
   // Load theme from localStorage on mount
   useEffect(() => {
@@ -30,9 +31,24 @@ export function DashboardThemeProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Apply/remove the global .dark class so Tailwind CSS variables (bg-background, text-foreground, etc.) work
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+      root.style.colorScheme = "dark";
+    } else {
+      root.classList.remove("dark");
+      root.style.colorScheme = "light";
+    }
+    root.setAttribute("data-dashboard-theme", theme);
+  }, [theme]);
+
   const setTheme = (newTheme: DashboardTheme) => {
     setThemeState(newTheme);
-    localStorage.setItem("dashboard-theme", newTheme);
+    try {
+      localStorage.setItem("dashboard-theme", newTheme);
+    } catch {}
   };
 
   return (
@@ -43,4 +59,3 @@ export function DashboardThemeProvider({ children }: { children: ReactNode }) {
     </DashboardThemeContext.Provider>
   );
 }
-

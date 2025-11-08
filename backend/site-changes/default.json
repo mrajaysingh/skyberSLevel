@@ -1,0 +1,49 @@
+{
+  "header": {
+    "logoUrl": "/favicon.svg",
+    "siteName": "SKYBER",
+    "navigationLinks": [
+      {
+        "id": "1",
+        "label": "About Us",
+        "href": "#about",
+        "order": 1
+      },
+      {
+        "id": "2",
+        "label": "Demo",
+        "href": "/demo",
+        "order": 2
+      },
+      {
+        "id": "3",
+        "label": "Insights",
+        "href": "#insights",
+        "order": 3
+      },
+      {
+        "id": "4",
+        "label": "Blogs",
+        "href": "#blogs",
+        "order": 4
+      },
+      {
+        "id": "5",
+        "label": "Policies",
+        "href": "/policies",
+        "order": 5
+      },
+      {
+        "id": "6",
+        "label": "Contact Us",
+        "href": "#contact",
+        "order": 6
+      }
+    ],
+    "headerBgColor": "#ffffff",
+    "headerTextColor": "#000000",
+    "stickyHeader": true
+  },
+  "lastModified": "2025-11-08T05:54:59.171Z",
+  "version": "1.0.0"
+}

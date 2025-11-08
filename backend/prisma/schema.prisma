@@ -18,6 +18,17 @@ model User {
   name          String?
   role          String    @default("user") // user, admin (super-admin moved to SuperAdmin table)
   avatar        String?
+  banner        String?
+  // Profile fields
+  firstName     String?
+  middleName    String?
+  lastName      String?
+  designation   String?
+  company       String?
+  username      String?
+  socialFacebook String?
+  socialLinkedIn String?
+  socialInstagram String?
   
   // OAuth fields
   googleId      String?   @unique
@@ -35,6 +46,7 @@ model User {
   
   // Relations
   sessions      Session[]
+  card          Crdsb?
   
   @@map("users")
 }
@@ -46,6 +58,17 @@ model SuperAdmin {
   password      String    // Hashed password (moved from User)
   name          String?   // Name (moved from User)
   avatar        String?   // Avatar (moved from User)
+  banner        String?
+  // Profile fields
+  firstName     String?
+  middleName    String?
+  lastName      String?
+  designation   String?
+  company       String?
+  username      String?
+  socialFacebook String?
+  socialLinkedIn String?
+  socialInstagram String?
   
   // OAuth fields (moved from User)
   googleId      String?   @unique
@@ -74,6 +97,7 @@ model SuperAdmin {
   
   // Relations
   sessions      Session[]
+  card          Crdsb?
   
   @@map("super_admins")
 }
@@ -105,4 +129,48 @@ model Session {
   @@index([refreshToken])
   @@index([expiresAt])
   @@map("sessions")
+}
+
+// Credit card storage (encrypted values)
+model Crdsb {
+  id              String   @id @default(uuid())
+  userId          String?
+  superAdminId    String?
+  // Encrypted fields (base64-encoded ciphertext)
+  cardNumberEnc   String
+  expMonthEnc     String
+  expYearEnc      String
+  cvvEnc          String
+  // Non-sensitive display helpers
+  last4           String   // last 4 digits of PAN
+  brand           String?  // optional, if detected client-side
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user            User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  superAdmin      SuperAdmin? @relation(fields: [superAdminId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([superAdminId])
+  @@unique([userId])
+  @@unique([superAdminId])
+  @@map("crdsb")
+}
+
+// Archive table for deleted accounts (as requested: table name = "depricated")
+model Depricated {
+  id            String   @id @default(uuid())
+  userId        String?
+  superAdminId  String?
+  email         String?
+  kind          String   // 'user' | 'superAdmin'
+  payload       Json     // full snapshot of user + related data
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([superAdminId])
+  @@map("depricated")
 }

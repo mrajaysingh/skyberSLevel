@@ -39,5 +39,10 @@ coverage/
 tmp/
 temp/
 
+# Site configuration backups
+site-changes/skyber-*.json
+!site-changes/default.json
+!site-changes/.example-backup.json
 
+/generated/prisma
 /generated/prisma

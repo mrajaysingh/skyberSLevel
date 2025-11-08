@@ -16,7 +16,7 @@ const connectDB = async () => {
     
     return true;
   } catch (error) {
-    console.error('❌ Database connection error:', error.message);
+    console.error('❌ Database connection failed:', error?.message || error);
     throw error;
   }
 };
@@ -27,9 +27,9 @@ const connectDB = async () => {
 const disconnectDB = async () => {
   try {
     await prisma.$disconnect();
-    console.log('✅ Database disconnected');
+    console.log('👋 Prisma disconnected');
   } catch (error) {
-    console.error('❌ Database disconnection error:', error.message);
+    console.error('⚠️  Error during Prisma disconnect:', error?.message || error);
     throw error;
   }
 };

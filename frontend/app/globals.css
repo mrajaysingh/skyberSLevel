@@ -111,6 +111,27 @@ body::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
 }
 
+/* Sidebar custom scrollbar */
+.sidebar-scroll {
+  scrollbar-width: thin; /* Firefox */
+}
+.sidebar-scroll::-webkit-scrollbar {
+  width: 3px; /* Chrome, Safari */
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background-color: #000000; /* light theme default */
+  border-radius: 9999px;
+}
+.dark .sidebar-scroll {
+  scrollbar-color: #17D492 transparent; /* Firefox */
+}
+.dark .sidebar-scroll::-webkit-scrollbar-thumb {
+  background-color: #17D492; /* dark theme */
+}
+
 /* TypeWriter blinking cursor animation */
 @keyframes blink {
   0%, 50% { opacity: 1; }
@@ -730,16 +751,21 @@ label[for],
 
 /* Toast/Alert Styles */
 .succsess-alert {
-  background-color: #232531;
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border-color: hsl(var(--border));
 }
 
 .error-alert {
-  background-color: #232531;
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border-color: hsl(var(--border));
 }
 
 .dark .succsess-alert,
 .dark .error-alert {
   background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
   border-color: hsl(var(--border));
 }
 

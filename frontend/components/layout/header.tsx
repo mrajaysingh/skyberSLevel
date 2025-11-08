@@ -11,9 +11,41 @@ import { AnimatedButton } from "@/components/ui/animated-button";
 import { useSecurity } from "@/components/security/page-security";
 import Image from "next/image";
 
+interface NavigationLink {
+  id: string;
+  label: string;
+  href: string;
+  order: number;
+}
+
+interface HeaderConfig {
+  logoUrl: string;
+  siteName: string;
+  navigationLinks: NavigationLink[];
+  headerBgColor: string;
+  headerTextColor: string;
+  stickyHeader: boolean;
+}
+
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [headerConfig, setHeaderConfig] = useState<HeaderConfig>({
+    logoUrl: "/favicon.svg",
+    siteName: "SKYBER",
+    navigationLinks: [
+      { id: "1", label: "About Us", href: "#about", order: 1 },
+      { id: "2", label: "Demo", href: "/demo", order: 2 },
+      { id: "3", label: "Insights", href: "#insights", order: 3 },
+      { id: "4", label: "Blogs", href: "#blogs", order: 4 },
+      { id: "5", label: "Policies", href: "/policies", order: 5 },
+      { id: "6", label: "Contact Us", href: "#contact", order: 6 },
+    ],
+    headerBgColor: "#ffffff",
+    headerTextColor: "#000000",
+    stickyHeader: true,
+  });
   const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated, user } = useSecurity();
@@ -23,9 +55,45 @@ const Header = () => {
   const isDemoPage = pathname === "/demo";
   const isLoginPage = pathname === "/login";
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+  // Load header configuration from API
+  useEffect(() => {
+    const loadHeaderConfig = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/site-config/current`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data.header) {
+            setHeaderConfig(data.data.header);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading header config:', error);
+        // Keep default config on error
+      }
+    };
+
+    loadHeaderConfig();
+  }, [API_URL]);
+
+  // Ensure component is mounted before using auth state to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Determine button text and href based on authentication
   const getClientAreaButton = () => {
-    if (isAuthenticated && user) {
+    // While on login page, always show Client Area button regardless of auth state
+    if (isLoginPage) {
+      return {
+        text: 'Client Area',
+        href: '/login'
+      };
+    }
+
+    // Only check auth state after mounting to prevent hydration mismatch
+    if (mounted && isAuthenticated && user) {
       // Determine dashboard URL based on role
       const dashboardUrl = user.role === 'super-admin' 
         ? '/auth/dashboards/user/super-admin'
@@ -139,90 +207,44 @@ const Header = () => {
 
             <Link href="/" className="flex items-center space-x-2">
               <Image
-                src="/favicon.svg"
-                alt="SKYBER Logo"
+                src={headerConfig.logoUrl}
+                alt={`${headerConfig.siteName} Logo`}
                 width={40}
                 height={40}
                 className="text-[#17D492] dark:text-[#17D492]"
               />
-              <span className="font-bold text-xl text-foreground skyber-text">SKYBER</span>
+              <span className="font-bold text-xl text-foreground skyber-text">{headerConfig.siteName}</span>
             </Link>
           </div>
 
           <nav className="hidden md:flex items-center space-x-6">
             <div className="flex items-center space-x-4">
-              <a 
-                href="#about" 
-                onClick={(e) => handleNavClick(e, "#about")}
-                className="relative px-4 py-2 rounded-full transition-colors hover:bg-accent hover:text-accent-foreground group"
-              >
-                About Us
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#17D492] transition-all duration-300 ease-out group-hover:w-[calc(100%-2rem)]"></span>
-              </a>
-
-              <a 
-                href="/demo"
-                className={cn(
-                  "relative px-4 py-2 rounded-full transition-colors hover:bg-accent hover:text-accent-foreground group",
-                  isDemoPage && "bg-accent text-accent-foreground"
-                )}
-              >
-                Demo
-                <span className={cn(
-                  "absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-[#17D492] transition-all duration-300 ease-out",
-                  isDemoPage ? "w-[calc(100%-2rem)]" : "w-0 group-hover:w-[calc(100%-2rem)]"
-                )}></span>
-              </a>
-
-              <a 
-                href="#insights" 
-                onClick={(e) => handleNavClick(e, "#insights")}
-                className={cn(
-                  "relative px-4 py-2 rounded-full transition-colors hover:bg-accent hover:text-accent-foreground group",
-                  isInsightsPage && "bg-accent text-accent-foreground"
-                )}
-              >
-                Insights
-                <span className={cn(
-                  "absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-[#17D492] transition-all duration-300 ease-out",
-                  isInsightsPage ? "w-[calc(100%-2rem)]" : "w-0 group-hover:w-[calc(100%-2rem)]"
-                )}></span>
-              </a>
-
-              <a 
-                href="#blogs" 
-                onClick={(e) => handleNavClick(e, "#blogs")}
-                className={cn(
-                  "relative px-4 py-2 rounded-full transition-colors hover:bg-accent hover:text-accent-foreground group",
-                  isBlogsPage && "bg-accent text-accent-foreground"
-                )}
-              >
-                Blogs
-                <span className={cn(
-                  "absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-[#17D492] transition-all duration-300 ease-out",
-                  isBlogsPage ? "w-[calc(100%-2rem)]" : "w-0 group-hover:w-[calc(100%-2rem)]"
-                )}></span>
-              </a>
-
-              <a 
-                href="/policies"
-                className="relative px-4 py-2 rounded-full transition-colors hover:bg-accent hover:text-accent-foreground group"
-              >
-                Policies
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#17D492] transition-all duration-300 ease-out group-hover:w-[calc(100%-2rem)]"></span>
-              </a>
-
-              <a 
-                href="#contact" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  router.push("/contact");
-                }}
-                className="relative px-4 py-2 rounded-full transition-colors hover:bg-accent hover:text-accent-foreground group"
-              >
-                Contact Us
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#17D492] transition-all duration-300 ease-out group-hover:w-[calc(100%-2rem)]"></span>
-              </a>
+              {headerConfig.navigationLinks
+                .sort((a, b) => a.order - b.order)
+                .map((link) => {
+                  const isCurrentPage = pathname === link.href || 
+                    (link.href === "#insights" && isInsightsPage) ||
+                    (link.href === "#blogs" && isBlogsPage) ||
+                    (link.href === "/demo" && isDemoPage);
+                  
+                  return (
+                    <a
+                      key={link.id}
+                      href={link.href}
+                      onClick={(e) => link.href.startsWith('#') ? handleNavClick(e, link.href) : undefined}
+                      className={cn(
+                        "relative px-4 py-2 rounded-full transition-colors hover:bg-accent hover:text-accent-foreground group",
+                        isCurrentPage && "bg-accent text-accent-foreground"
+                      )}
+                    >
+                      {link.label}
+                      <span className={cn(
+                        "absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-[#17D492] transition-all duration-300 ease-out",
+                        isCurrentPage ? "w-[calc(100%-2rem)]" : "w-0 group-hover:w-[calc(100%-2rem)]"
+                      )}></span>
+                    </a>
+                  );
+                })}
             </div>
 
             <div className="flex items-center space-x-4">

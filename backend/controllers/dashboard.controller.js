@@ -57,6 +57,21 @@ const getSuperAdminDashboard = async (req, res) => {
           id: true,
           email: true,
           name: true,
+          avatar: true,
+          banner: true,
+          // Profile fields
+          firstName: true,
+          middleName: true,
+          lastName: true,
+          designation: true,
+          company: true,
+          username: true,
+          socialFacebook: true,
+          socialLinkedIn: true,
+          socialInstagram: true,
+          // OAuth/plan/status
+          googleId: true,
+          githubId: true,
           planTier: true,
           isActive: true,
           currentIp: true,
@@ -107,6 +122,19 @@ const getSuperAdminDashboard = async (req, res) => {
       redisStatus = 'down';
     }
 
+    // Resolve current session from database (if available)
+    let currentSession = null;
+    try {
+      if (req.sessionId) {
+        currentSession = await prisma.session.findUnique({
+          where: { id: req.sessionId },
+          select: { id: true, isValid: true, expiresAt: true }
+        });
+      }
+    } catch (_) {
+      currentSession = null;
+    }
+
     res.status(200).json({
       success: true,
       message: 'Super admin dashboard data retrieved successfully',
@@ -128,6 +156,11 @@ const getSuperAdminDashboard = async (req, res) => {
             redis: {
               status: redisStatus,
               type: 'Redis Cache'
+            },
+            session: {
+              id: currentSession?.id || req.sessionId || null,
+              isValid: currentSession?.isValid ?? null,
+              expiresAt: currentSession?.expiresAt ?? null
             }
           },
           user: superAdminInfo ? {

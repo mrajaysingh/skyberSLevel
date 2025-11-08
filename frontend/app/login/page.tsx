@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
@@ -19,10 +19,12 @@ import {
 } from "@/components/ui/select";
 import Image from "next/image";
 import DarkVeil from "@/components/ui/dark-veil";
+import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 
 export default function Login() {
   const router = useRouter();
-  const { setTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
+  const initialThemeRef = useRef<string | undefined>(undefined);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [departmentId, setDepartmentId] = useState("");
@@ -32,15 +34,60 @@ export default function Login() {
   const [error, setError] = useState("");
   const [isRoleLocked, setIsRoleLocked] = useState(false);
   const [checkingRole, setCheckingRole] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const { login } = useSecurity();
   const { showSuccess } = useToast();
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-  // Force dark theme on login page
+  // Check for OAuth errors in URL params
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const errorParam = params.get('error');
+    const messageParam = params.get('message');
+    
+    if (errorParam) {
+      const errorMessages: Record<string, string> = {
+        'account_not_found': messageParam || 'Account not found. Please connect your social account from the dashboard first.',
+        'github_not_connected': messageParam || 'Please connect your GitHub account from the dashboard first.',
+        'google_not_connected': messageParam || 'Please connect your Google account from the dashboard first.',
+        'github_oauth_failed': 'GitHub OAuth failed. Please try again.',
+        'google_oauth_failed': 'Google OAuth failed. Please try again.',
+        'github_oauth_state': 'GitHub OAuth state mismatch. Please try again.',
+        'google_oauth_state': 'Google OAuth state mismatch. Please try again.',
+        'github_oauth_config': 'GitHub OAuth not configured. Please contact support.',
+        'google_oauth_config': 'Google OAuth not configured. Please contact support.',
+        'github_oauth_token': 'Failed to get GitHub access token. Please try again.',
+        'google_oauth_token': 'Failed to get Google access token. Please try again.',
+        'github_email_required': 'GitHub email not available. Please ensure your GitHub account has a verified email.',
+        'google_email_required': 'Google email not available. Please ensure your Google account has a verified email.',
+      };
+      setError(errorMessages[errorParam] || 'An error occurred during OAuth login.');
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
+  // Force dark theme on login page, and restore previous theme when leaving
+  useEffect(() => {
+    if (initialThemeRef.current === undefined) {
+      initialThemeRef.current = theme;
+    }
     setTheme("dark");
-  }, [setTheme]);
+    // Also ensure no flash by applying .dark at root while on this page
+    const root = document.documentElement;
+    root.classList.add("dark");
+    root.style.colorScheme = "dark";
+    return () => {
+      const prev = initialThemeRef.current;
+      if (prev) setTheme(prev as any);
+      // Remove forced dark if another page sets light
+      if (prev !== "dark") {
+        root.classList.remove("dark");
+        root.style.colorScheme = prev === "light" ? "light" : "dark";
+      }
+    };
+  }, [setTheme, theme]);
 
   // Check user role when email changes (debounced)
   useEffect(() => {
@@ -134,7 +181,7 @@ export default function Login() {
   };
 
   return (
-    <div className="relative flex min-h-[calc(100vh-var(--header-height))] bg-background px-4 sm:px-6 lg:px-8 overflow-hidden items-center justify-center py-4">
+    <div className="dark relative flex min-h-[calc(100vh-var(--header-height))] bg-background px-4 sm:px-6 lg:px-8 overflow-hidden items-center justify-center py-4">
       {/* DarkVeil Background */}
       <div className="fixed inset-0 w-full h-full z-0">
         <DarkVeil 
@@ -151,7 +198,7 @@ export default function Login() {
       {/* Content Overlay */}
       <div className="relative z-10 w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
         {/* Left column: Login Form */}
-        <div className="w-full max-w-md mx-auto lg:ml-0 lg:mr-auto order-2 lg:order-1">
+        <div className="w-full max-w-md mx-auto lg:ml-0 lg:mr-auto order-2 lg:order-1 relative">
           <Card className="border-border bg-card/95 backdrop-blur-sm">
             <CardHeader className="pb-4">
               <CardTitle>Sign in</CardTitle>
@@ -171,33 +218,36 @@ export default function Login() {
                       I AM A
                     </label>
                     <div className="relative w-full">
-                      <Select
-                        value={role}
-                        onValueChange={setRole}
-                        disabled={isRoleLocked}
-                      >
-                        <SelectTrigger 
-                          className={`w-full bg-background focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none ${
-                            isRoleLocked ? 'opacity-75 cursor-not-allowed' : ''
-                          }`}
-                        >
-                          <SelectValue placeholder="Select your role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="client">Client</SelectItem>
-                          <SelectItem value="employee">Employee</SelectItem>
-                          <SelectItem value="superadmin">Super Admin</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {checkingRole && (
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#17D492]"></div>
+                      {isRoleLocked && role === 'superadmin' ? (
+                        <div className="flex items-center justify-between w-full border rounded-md bg-muted/50 text-foreground px-3 py-2">
+                          <span className="text-sm">Super Admin (Auto-detected)</span>
+                          <span className="text-xs text-[#17D492] font-medium">Verified</span>
                         </div>
-                      )}
-                      {isRoleLocked && (
-                        <div className="absolute right-8 top-1/2 -translate-y-1/2">
-                          <span className="text-xs text-[#17D492] font-medium">Auto-detected</span>
-                        </div>
+                      ) : (
+                        <>
+                          <Select
+                            value={role}
+                            onValueChange={setRole}
+                          >
+                            <SelectTrigger 
+                              className={`w-full bg-background focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none ${
+                                isRoleLocked ? 'opacity-75 cursor-not-allowed' : ''
+                              }`}
+                            >
+                              <SelectValue placeholder="Select your role" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="client">Client</SelectItem>
+                              <SelectItem value="employee">Employee</SelectItem>
+                              {/* Super Admin intentionally not listed; becomes available only after verification */}
+                            </SelectContent>
+                          </Select>
+                          {checkingRole && (
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#17D492]"></div>
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -270,14 +320,13 @@ export default function Login() {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input
+                  <div className="flex items-center gap-2">
+                    <CustomCheckbox
                       id="remember-me"
-                      name="remember-me"
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-border text-primary focus:ring-primary/50"
+                      checked={rememberMe}
+                      onChange={setRememberMe}
                     />
-                    <label htmlFor="remember-me" className="ml-2 block text-sm text-muted-foreground">
+                    <label htmlFor="remember-me" className="block text-sm text-muted-foreground cursor-pointer">
                       Remember me
                     </label>
                   </div>
@@ -311,6 +360,47 @@ export default function Login() {
               </div>
             </CardFooter>
           </Card>
+
+          {/* Social Login Icons - attached to right edge of the form (UI only) */}
+          <div className="absolute left-full top-0 ml-[5px] hidden lg:flex flex-col items-center">
+            <div className="flex flex-col gap-2.5 py-3 px-1.5 rounded-full bg-card/95 backdrop-blur-sm border border-[#17D492]/30 shadow-lg">
+              {/* GitHub Login Icon */}
+              <a
+                href={`${API_URL}/api/auth/oauth/github`}
+                className="relative w-[50px] h-[50px] rounded-full bg-background border border-border hover:border-[#17D492] transition-all duration-200 flex items-center justify-center hover:scale-110 cursor-pointer group shadow-sm"
+                aria-label="Login with GitHub"
+              >
+                <Image
+                  src="/AuthImg/GithubAuthIcon.svg"
+                  alt="GitHub"
+                  width={29}
+                  height={29}
+                  className="opacity-90 group-hover:opacity-100 transition-opacity"
+                />
+                <span className="absolute left-full ml-2 opacity-0 group-hover:opacity-100 group-hover:text-foreground group-hover:text-sm whitespace-nowrap duration-300 pointer-events-none bg-card/95 backdrop-blur-sm border border-border rounded-md px-2 py-1 shadow-lg">
+                  Login with GitHub
+                </span>
+              </a>
+
+              {/* Google Login Icon */}
+              <a
+                href={`${API_URL}/api/auth/oauth/google`}
+                className="relative w-[50px] h-[50px] rounded-full bg-background border border-border hover:border-[#17D492] transition-all duration-200 flex items-center justify-center hover:scale-110 cursor-pointer group shadow-sm"
+                aria-label="Login with Google"
+              >
+                <Image
+                  src="/AuthImg/GoogleAuthIcon.svg"
+                  alt="Google"
+                  width={29}
+                  height={29}
+                  className="opacity-90 group-hover:opacity-100 transition-opacity"
+                />
+                <span className="absolute left-full ml-2 opacity-0 group-hover:opacity-100 group-hover:text-foreground group-hover:text-sm whitespace-nowrap duration-300 pointer-events-none bg-card/95 backdrop-blur-sm border border-border rounded-md px-2 py-1 shadow-lg">
+                  Login with Google
+                </span>
+              </a>
+            </div>
+          </div>
         </div>
         
         {/* Right column: Logo and brand info */}

@@ -22,7 +22,8 @@
   "author": "SKYBER",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^6.18.0",
+    "@aws-sdk/client-s3": "^3.682.0",
+    "@prisma/client": "^6.19.0",
     "@prisma/extension-accelerate": "^2.0.2",
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",
@@ -36,17 +37,11 @@
     "helmet": "^7.1.0",
     "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
-    "morgan": "^1.10.0",
-    "passport": "^0.7.0",
-    "passport-github2": "^0.1.12",
-    "passport-google-oauth20": "^2.0.0",
-    "passport-jwt": "^4.0.1",
-    "passport-local": "^1.0.0",
-    "prisma": "^6.18.0",
     "redis": "^5.9.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.2",
+    "prisma": "^6.19.0"
   }
 }

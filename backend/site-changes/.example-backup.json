@@ -1,0 +1,68 @@
+{
+  "date": "2025-01-08",
+  "createdAt": "2025-01-08T10:00:00.000Z",
+  "lastModified": "2025-01-08T15:30:45.000Z",
+  "latestConfig": {
+    "logoUrl": "/favicon.svg",
+    "siteName": "SKYBER",
+    "navigationLinks": [
+      { "id": "1", "label": "About Us", "href": "#about", "order": 1 },
+      { "id": "2", "label": "Demo", "href": "/demo", "order": 2 },
+      { "id": "3", "label": "Insights", "href": "#insights", "order": 3 },
+      { "id": "4", "label": "Blogs", "href": "#blogs", "order": 4 },
+      { "id": "5", "label": "Policies", "href": "/policies", "order": 5 },
+      { "id": "6", "label": "Contact Us", "href": "#contact", "order": 6 }
+    ],
+    "headerBgColor": "#ffffff",
+    "headerTextColor": "#000000",
+    "stickyHeader": true
+  },
+  "changeLog": [
+    {
+      "timestamp": "2025-01-08T10:00:00.000Z",
+      "previousConfig": {
+        "logoUrl": "/old-logo.svg",
+        "siteName": "SKYBER",
+        "navigationLinks": [
+          { "id": "1", "label": "About", "href": "#about", "order": 1 },
+          { "id": "2", "label": "Services", "href": "/services", "order": 2 }
+        ],
+        "headerBgColor": "#f0f0f0",
+        "headerTextColor": "#333333",
+        "stickyHeader": false
+      },
+      "note": "Initial backup for this day"
+    },
+    {
+      "timestamp": "2025-01-08T12:15:30.000Z",
+      "previousConfig": {
+        "logoUrl": "/favicon.svg",
+        "siteName": "SKYBER",
+        "navigationLinks": [
+          { "id": "1", "label": "About", "href": "#about", "order": 1 },
+          { "id": "2", "label": "Services", "href": "/services", "order": 2 }
+        ],
+        "headerBgColor": "#ffffff",
+        "headerTextColor": "#000000",
+        "stickyHeader": false
+      },
+      "note": "Configuration updated"
+    },
+    {
+      "timestamp": "2025-01-08T15:30:45.000Z",
+      "previousConfig": {
+        "logoUrl": "/favicon.svg",
+        "siteName": "SKYBER",
+        "navigationLinks": [
+          { "id": "1", "label": "About", "href": "#about", "order": 1 },
+          { "id": "2", "label": "Services", "href": "/services", "order": 2 },
+          { "id": "3", "label": "Contact", "href": "#contact", "order": 3 }
+        ],
+        "headerBgColor": "#ffffff",
+        "headerTextColor": "#000000",
+        "stickyHeader": false
+      },
+      "note": "Configuration updated"
+    }
+  ]
+}
