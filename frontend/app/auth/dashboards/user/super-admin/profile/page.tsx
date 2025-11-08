@@ -1243,7 +1243,7 @@ export default function SuperAdminProfilePage() {
                     localStorage.removeItem('userData');
                     localStorage.removeItem('skyber_authenticated');
                   } catch (_) {}
-                  updateUser({ avatar: null, banner: null, email: null, name: null, firstName: null, lastName: null, username: null });
+                  updateUser({ avatar: null, banner: null, email: "", name: null, firstName: null, lastName: null, username: null });
                   setShowDeleteConfirm(false);
                   window.location.href = '/login';
                 } catch (e) {
