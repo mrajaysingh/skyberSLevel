@@ -109,6 +109,34 @@ export default function Login() {
       try {
         setCheckingRole(true);
         const response = await fetch(`${API_URL}/api/auth/check-role/${encodeURIComponent(email.toLowerCase())}`);
+        
+        // Handle 404 gracefully - backend might not be running or user doesn't exist
+        if (response.status === 404) {
+          // Silently fail - user doesn't exist or backend unavailable
+          setIsRoleLocked(false);
+          setRole("client");
+          return;
+        }
+        
+        // Check if response is OK and content-type is JSON
+        if (!response.ok) {
+          // Only log non-404 errors in development
+          if (process.env.NODE_ENV === 'development') {
+            console.warn(`Role check API returned status ${response.status}`);
+          }
+          setIsRoleLocked(false);
+          setRole("client");
+          return;
+        }
+        
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          // Not JSON response - backend might be returning HTML error page
+          setIsRoleLocked(false);
+          setRole("client");
+          return;
+        }
+        
         const data = await response.json();
 
         if (data.success && data.data?.isSuperAdmin) {
@@ -133,7 +161,15 @@ export default function Login() {
           });
         }
       } catch (error) {
-        console.error("Error checking user role:", error);
+        // Only log network errors or unexpected errors in development
+        if (process.env.NODE_ENV === 'development') {
+          // Check if it's a network error (backend not running)
+          if (error instanceof TypeError && error.message.includes('fetch')) {
+            // Silently handle - backend might not be running
+          } else {
+            console.error("Error checking user role:", error);
+          }
+        }
         // On error, unlock the role
         setIsRoleLocked(false);
         setRole("client");

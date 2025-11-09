@@ -24,16 +24,25 @@ async function getCurrentConfig(req, res) {
  */
 async function saveConfig(req, res) {
   try {
-    const { header } = req.body;
+    const { header, hero } = req.body;
 
-    if (!header) {
+    // Allow saving either header or hero or both
+    const configToSave = {};
+    if (header) {
+      configToSave.header = header;
+    }
+    if (hero) {
+      configToSave.hero = hero;
+    }
+
+    if (Object.keys(configToSave).length === 0) {
       return res.status(400).json({
         success: false,
-        error: 'Header configuration is required'
+        error: 'At least one configuration (header or hero) is required'
       });
     }
 
-    const result = await siteBackupUtil.saveConfig({ header });
+    const result = await siteBackupUtil.saveConfig(configToSave);
     
     res.json({
       success: true,

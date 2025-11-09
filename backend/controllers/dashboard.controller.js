@@ -69,6 +69,7 @@ const getSuperAdminDashboard = async (req, res) => {
           socialFacebook: true,
           socialLinkedIn: true,
           socialInstagram: true,
+          googleAnalyticsId: true,
           // OAuth/plan/status
           googleId: true,
           githubId: true,

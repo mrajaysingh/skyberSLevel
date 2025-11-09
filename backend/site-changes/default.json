@@ -5,7 +5,7 @@
     "navigationLinks": [
       {
         "id": "1",
-        "label": "About Us",
+        "label": "About U",
         "href": "#about",
         "order": 1
       },
@@ -40,10 +40,47 @@
         "order": 6
       }
     ],
-    "headerBgColor": "#ffffff",
-    "headerTextColor": "#000000",
-    "stickyHeader": true
+    "headerBgColor": "#000000",
+    "headerTextColor": "#ffffff",
+    "stickyHeader": true,
+    "glassMorphismIntensity": 40
   },
-  "lastModified": "2025-11-08T05:54:59.171Z",
-  "version": "1.0.0"
+  "lastModified": "2025-11-09T06:47:43.959Z",
+  "version": "1.0.0",
+  "hero": {
+    "badgeText": "New",
+    "typeWriterPhrases": [
+      "Enhanced AI Security Features",
+      "Smart Cybersecurity & Tech",
+      "Secure Digital Experiences",
+      "Innovative Security Solutions",
+      "Secure, Develop, Design"
+    ],
+    "heading": "Secure Your Digital Future With",
+    "headingHighlight": "SKYBER",
+    "description": "Leading cybersecurity solutions and exceptional web development to protect your business and accelerate your online growth.",
+    "primaryButtonText": "Get Started",
+    "secondaryButtonText": "About Us",
+    "secondaryButtonHref": "/about",
+    "heroImageUrl": "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg",
+    "features": [
+      {
+        "id": "1",
+        "icon": "Shield",
+        "text": "99.9% Uptime"
+      },
+      {
+        "id": "2",
+        "icon": "Lock",
+        "text": "SOC 2 Certified"
+      },
+      {
+        "id": "3",
+        "icon": "Zap",
+        "text": "24/7 Support"
+      }
+    ],
+    "trustPilotUrl": "https://www.trustpilot.com/review/skybersupport.me",
+    "trustPilotText": "Review us on Trustpilot"
+  }
 }

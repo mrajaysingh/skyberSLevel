@@ -22,7 +22,8 @@ interface HeaderConfig {
   logoUrl: string;
   siteName: string;
   navigationLinks: NavigationLink[];
-  headerBgColor: string;
+  glassMorphismIntensity?: number; // 0-100, controls opacity of glass effect
+  headerBgColor?: string; // Legacy support
   headerTextColor: string;
   stickyHeader: boolean;
 }
@@ -31,6 +32,7 @@ const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [headerConfig, setHeaderConfig] = useState<HeaderConfig>({
     logoUrl: "/favicon.svg",
     siteName: "SKYBER",
@@ -42,7 +44,7 @@ const Header = () => {
       { id: "5", label: "Policies", href: "/policies", order: 5 },
       { id: "6", label: "Contact Us", href: "#contact", order: 6 },
     ],
-    headerBgColor: "#ffffff",
+    glassMorphismIntensity: 40, // Default 40% opacity
     headerTextColor: "#000000",
     stickyHeader: true,
   });
@@ -61,11 +63,27 @@ const Header = () => {
   useEffect(() => {
     const loadHeaderConfig = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/site-config/current`);
+        const response = await fetch(`${API_URL}/api/site-config/current`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
         if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.data.header) {
-            setHeaderConfig(data.data.header);
+          // Check if response is JSON before parsing
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const data = await response.json();
+            if (data.success && data.data.header) {
+              const loadedConfig = data.data.header;
+              // Handle backward compatibility: if headerBgColor exists but glassMorphismIntensity doesn't, set default
+              if (!loadedConfig.glassMorphismIntensity && loadedConfig.headerBgColor) {
+                loadedConfig.glassMorphismIntensity = 40; // Default intensity
+              } else if (!loadedConfig.glassMorphismIntensity) {
+                loadedConfig.glassMorphismIntensity = 40; // Default if neither exists
+              }
+              setHeaderConfig(loadedConfig);
+            }
           }
         }
       } catch (error) {
@@ -75,11 +93,47 @@ const Header = () => {
     };
 
     loadHeaderConfig();
+    
+    // Refresh config every 5 seconds to pick up changes
+    const interval = setInterval(loadHeaderConfig, 5000);
+    
+    // Also listen for storage events (when config is saved in another tab)
+    const handleStorageChange = () => {
+      loadHeaderConfig();
+    };
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Listen for custom event when config is saved
+    window.addEventListener('headerConfigUpdated', loadHeaderConfig);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('headerConfigUpdated', loadHeaderConfig);
+    };
   }, [API_URL]);
 
   // Ensure component is mounted before using auth state to prevent hydration mismatch
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  // Check for dark mode
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    };
+    
+    checkDarkMode();
+    
+    // Watch for theme changes
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    
+    return () => observer.disconnect();
   }, []);
 
   // Determine button text and href based on authentication
@@ -191,8 +245,15 @@ const Header = () => {
 	    )}
 	    style={{
 	      height: scrolled ? 'calc(var(--header-height) * 0.85)' : 'var(--header-height)',
-	      transition: 'height 500ms ease-out, padding 500ms ease-out'
-	    }}
+	      transition: 'height 500ms ease-out, padding 500ms ease-out',
+	      // Calculate background opacity based on glass morphism intensity
+	      // Use CSS variable with opacity for glass morphism effect
+	      ...(headerConfig.glassMorphismIntensity !== undefined && {
+	        backgroundColor: `hsl(var(--background) / ${(headerConfig.glassMorphismIntensity ?? 40) / 100})`,
+	      }),
+	      // Only apply custom text color in dark mode, use default theme color in light mode
+	      ...(isDarkMode && headerConfig.headerTextColor ? { color: headerConfig.headerTextColor } : {}),
+	    } as React.CSSProperties}
 	  >
         <div className="container mx-auto flex items-center justify-between h-full">
           <div className="flex items-center space-x-4">

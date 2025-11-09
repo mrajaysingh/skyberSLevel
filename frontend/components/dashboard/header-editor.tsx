@@ -29,7 +29,7 @@ interface HeaderConfig {
   logoUrl: string;
   siteName: string;
   navigationLinks: NavigationLink[];
-  headerBgColor: string;
+  glassMorphismIntensity: number; // 0-100, controls opacity of glass effect
   headerTextColor: string;
   stickyHeader: boolean;
 }
@@ -46,7 +46,7 @@ export function HeaderEditor() {
       { id: "5", label: "Policies", href: "/policies", order: 5 },
       { id: "6", label: "Contact Us", href: "#contact", order: 6 },
     ],
-    headerBgColor: "#ffffff",
+    glassMorphismIntensity: 40, // Default 40% opacity
     headerTextColor: "#000000",
     stickyHeader: true,
   });
@@ -126,9 +126,20 @@ export function HeaderEditor() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.data.header) {
-          setConfig(data.data.header);
+        // Check if response is JSON before parsing
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const data = await response.json();
+          if (data.success && data.data.header) {
+            const loadedConfig = data.data.header;
+            // Handle backward compatibility: if headerBgColor exists but glassMorphismIntensity doesn't, set default
+            if (!loadedConfig.glassMorphismIntensity && loadedConfig.headerBgColor) {
+              loadedConfig.glassMorphismIntensity = 40; // Default intensity
+            } else if (!loadedConfig.glassMorphismIntensity) {
+              loadedConfig.glassMorphismIntensity = 40; // Default if neither exists
+            }
+            setConfig(loadedConfig);
+          }
         }
       }
     } catch (error) {
@@ -139,16 +150,42 @@ export function HeaderEditor() {
   const loadBackups = async () => {
     try {
       const sessionToken = typeof window !== 'undefined' ? localStorage.getItem('sessionToken') : null;
-      if (!sessionToken) return;
+      if (!sessionToken) {
+        setBackups([]);
+        return;
+      }
 
       const response = await fetch(`${API_URL}/api/site-config/backups`, {
         headers: { 'Authorization': `Bearer ${sessionToken}` },
+        cache: 'no-store',
+      }).catch((fetchError) => {
+        // Handle network errors
+        console.error('Network error loading backups:', fetchError);
+        return null;
       });
 
+      if (!response) {
+        setBackups([]);
+        return;
+      }
+
       if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setBackups(data.data || []);
+        // Check if response is JSON before parsing
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          try {
+            const data = await response.json();
+            if (data.success) {
+              setBackups(data.data || []);
+            } else {
+              setBackups([]);
+            }
+          } catch (parseError) {
+            console.error('Error parsing backups response:', parseError);
+            setBackups([]);
+          }
+        } else {
+          setBackups([]);
         }
       } else {
         // If API fails, set empty backups array
@@ -179,11 +216,25 @@ export function HeaderEditor() {
         body: JSON.stringify({ header: config }),
       });
 
+      // Check if response is JSON before parsing
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        showError('Save Failed', 'Server returned invalid response. Please check if the backend is running.');
+        return;
+      }
+
       const data = await response.json();
 
       if (response.ok && data.success) {
         showSuccess('Saved Successfully', 'Header configuration saved and backup created');
-        await loadBackups(); // Reload backups list
+        // Trigger header refresh by dispatching custom event
+        window.dispatchEvent(new Event('headerConfigUpdated'));
+        // Also reload current config to reflect changes
+        await loadCurrentConfig();
+        // Reload backups list (don't await to prevent blocking)
+        loadBackups().catch((err) => {
+          console.error('Error reloading backups after save:', err);
+        });
       } else {
         showError('Save Failed', data?.error || 'Failed to save configuration. Make sure the backend server is running.');
       }
@@ -217,6 +268,13 @@ export function HeaderEditor() {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${sessionToken}` },
       });
+
+      // Check if response is JSON before parsing
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        showError('Restore Failed', 'Server returned invalid response. Please check if the backend is running.');
+        return;
+      }
 
       const data = await response.json();
 
@@ -426,23 +484,34 @@ export function HeaderEditor() {
           )}
         >
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="bg-color">Background Color</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="bg-color"
-                  type="color"
-                  value={config.headerBgColor}
-                  onChange={(e) => setConfig({ ...config, headerBgColor: e.target.value })}
-                  className="w-16 h-10 p-1 cursor-pointer"
-                />
-                <Input
-                  value={config.headerBgColor}
-                  onChange={(e) => setConfig({ ...config, headerBgColor: e.target.value })}
-                  placeholder="#ffffff"
-                  className="flex-1"
-                />
+              <div className="flex items-center justify-between">
+                <Label htmlFor="glass-intensity">Glass Morphism Intensity</Label>
+                <span className="text-sm text-muted-foreground">{config.glassMorphismIntensity}%</span>
+              </div>
+              <div className="space-y-2">
+                <div className="relative">
+                  <input
+                    id="glass-intensity"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={config.glassMorphismIntensity}
+                    onChange={(e) => setConfig({ ...config, glassMorphismIntensity: parseInt(e.target.value) })}
+                    className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-[#17D492]"
+                    style={{
+                      background: `linear-gradient(to right, #17D492 0%, #17D492 ${config.glassMorphismIntensity}%, hsl(var(--muted)) ${config.glassMorphismIntensity}%, hsl(var(--muted)) 100%)`,
+                    }}
+                  />
+                </div>
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Transparent (0%)</span>
+                  <span>Opaque (100%)</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Adjust the intensity of the glass morphism effect. Lower values make the header more transparent, higher values make it more opaque.
+                </p>
               </div>
             </div>
 

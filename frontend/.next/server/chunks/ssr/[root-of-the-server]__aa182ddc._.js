@@ -1,0 +1,11 @@
+module.exports=[93695,(a,b,c)=>{b.exports=a.x("next/dist/shared/lib/no-fallback-error.external.js",()=>require("next/dist/shared/lib/no-fallback-error.external.js"))},70864,a=>{a.n(a.i(33290))},2894,a=>{a.n(a.i(66188))},73317,a=>{a.n(a.i(43134))},365,a=>{a.n(a.i(80189))},76152,a=>{a.n(a.i(45613))},94813,a=>{"use strict";let b=(0,a.i(37953).registerClientReference)(function(){throw Error("Attempted to call SkyberSecutity() from the server but SkyberSecutity is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.")},"[project]/components/security/skybersecutity.tsx <module evaluation>","SkyberSecutity");a.s(["SkyberSecutity",0,b])},7539,a=>{"use strict";let b=(0,a.i(37953).registerClientReference)(function(){throw Error("Attempted to call SkyberSecutity() from the server but SkyberSecutity is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.")},"[project]/components/security/skybersecutity.tsx","SkyberSecutity");a.s(["SkyberSecutity",0,b])},27637,a=>{"use strict";a.i(94813);var b=a.i(7539);a.n(b)},96156,a=>{"use strict";var b=a.i(93566),c=a.i(27637);function d(){return(0,b.jsx)(c.SkyberSecutity,{children:(0,b.jsx)("div",{className:"container mx-auto py-12",children:(0,b.jsxs)("div",{className:"max-w-4xl mx-auto",children:[(0,b.jsx)("h1",{className:"text-4xl font-bold mb-4",children:"Protected Area"}),(0,b.jsx)("p",{className:"text-lg text-muted-foreground mb-8",children:"This is a protected page that requires authentication. You can wrap any content with the <SkyberSecutity> component to protect it."}),(0,b.jsxs)("div",{className:"bg-secondary/50 p-6 rounded-lg",children:[(0,b.jsx)("h2",{className:"text-2xl font-semibold mb-4",children:"How to Use"}),(0,b.jsx)("pre",{className:"bg-background p-4 rounded overflow-x-auto",children:(0,b.jsx)("code",{children:`import { SkyberSecutity } from "@/components/security/skybersecutity";
+
+export default function YourPage() {
+  return (
+    <SkyberSecutity>
+      {/* Your protected content here */}
+    </SkyberSecutity>
+  );
+}`})})]})]})})})}a.s(["default",()=>d])}];
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__aa182ddc._.js.map

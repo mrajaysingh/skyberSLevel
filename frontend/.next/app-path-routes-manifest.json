@@ -1,0 +1,14 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/access-required/page": "/access-required",
+  "/auth/callback/page": "/auth/callback",
+  "/auth/dashboards/user/super-admin/edit-site/page": "/auth/dashboards/user/super-admin/edit-site",
+  "/auth/dashboards/user/super-admin/page": "/auth/dashboards/user/super-admin",
+  "/auth/dashboards/user/super-admin/profile/page": "/auth/dashboards/user/super-admin/profile",
+  "/demo/page": "/demo",
+  "/favicon.ico/route": "/favicon.ico",
+  "/login/page": "/login",
+  "/page": "/",
+  "/protected/page": "/protected"
+}

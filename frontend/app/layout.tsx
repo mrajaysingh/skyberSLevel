@@ -7,6 +7,8 @@ import { ConditionalLayout } from "@/components/layout/conditional-layout";
 import { Preloader } from "@/components/preloader";
 import { ToastProvider } from "@/components/ui/toast-provider";
 import { FormValidationHandler } from "@/components/ui/form-validation-handler";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
+import { MobileRedirect } from "@/components/mobile-redirect";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -65,6 +67,8 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/favicon.svg" />
       </head>
       <body className={`${inter.className} antialiased`} suppressHydrationWarning>
+        <MobileRedirect />
+        <GoogleAnalytics />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ToastProvider>
             <FormValidationHandler />

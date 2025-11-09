@@ -38,6 +38,12 @@ function AuthCallbackContent() {
           throw new Error("Token verification failed");
         }
 
+        // Check if response is JSON before parsing
+        const contentType = res.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Response is not JSON");
+        }
+
         const data = await res.json();
 
         // Persist minimal user data for the app

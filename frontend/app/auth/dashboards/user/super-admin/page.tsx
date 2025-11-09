@@ -71,6 +71,12 @@ export default function SuperAdminDashboard() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      // Check if response is JSON before parsing
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Response is not JSON");
+      }
+
       const data = await response.json();
       if (data.success) {
         setDashboardData(data.data.dashboard);

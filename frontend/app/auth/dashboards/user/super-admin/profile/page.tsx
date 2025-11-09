@@ -45,6 +45,7 @@ export default function SuperAdminProfilePage() {
   const [captchaCode, setCaptchaCode] = useState<string>("");
   const [captchaInput, setCaptchaInput] = useState<string>("");
   const [isDisconnecting, setIsDisconnecting] = useState<boolean>(false);
+  const [savingAnalytics, setSavingAnalytics] = useState<boolean>(false);
 
   interface ProfileFormState {
     firstName: string;
@@ -57,6 +58,7 @@ export default function SuperAdminProfilePage() {
     socialFacebook: string;
     socialLinkedIn: string;
     socialInstagram: string;
+    googleAnalyticsId: string;
   }
 
   const [profileForm, setProfileForm] = useState<ProfileFormState>({
@@ -70,6 +72,7 @@ export default function SuperAdminProfilePage() {
     socialFacebook: "",
     socialLinkedIn: "",
     socialInstagram: "",
+    googleAnalyticsId: "",
   });
 
   const updateField = (key: keyof ProfileFormState, value: string) => {
@@ -95,7 +98,8 @@ export default function SuperAdminProfilePage() {
           email: profileForm.email,
           socialFacebook: profileForm.socialFacebook,
           socialLinkedIn: profileForm.socialLinkedIn,
-          socialInstagram: profileForm.socialInstagram
+          socialInstagram: profileForm.socialInstagram,
+          googleAnalyticsId: profileForm.googleAnalyticsId?.trim() || ""
         })
       }).then(async (r) => {
         if (!r.ok) throw new Error('Failed to save');
@@ -122,6 +126,31 @@ export default function SuperAdminProfilePage() {
       );
     } catch (_) {
       showSuccess('Profile updated', 'Profile details saved.');
+    }
+  };
+
+  const handleSaveAnalytics = async () => {
+    if (savingAnalytics) return;
+    setSavingAnalytics(true);
+    try {
+      const sessionToken = typeof window !== 'undefined' ? localStorage.getItem('sessionToken') : null;
+      await fetch(`${API_URL}/api/profile/update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : {})
+        },
+        body: JSON.stringify({
+          googleAnalyticsId: profileForm.googleAnalyticsId?.trim() || ""
+        })
+      }).then(async (r) => {
+        if (!r.ok) throw new Error('Failed to save');
+      });
+      showSuccess('Google Analytics ID saved', 'Your Google Analytics ID has been updated successfully.');
+    } catch (_) {
+      showSuccess('Error', 'Failed to save Google Analytics ID. Please try again.');
+    } finally {
+      setSavingAnalytics(false);
     }
   };
 
@@ -168,6 +197,9 @@ export default function SuperAdminProfilePage() {
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
+  // Track if form has been loaded initially
+  const [formLoaded, setFormLoaded] = useState(false);
+
   // Fetch existing avatar/banner from backend on mount
   useEffect(() => {
     const load = async () => {
@@ -189,8 +221,8 @@ export default function SuperAdminProfilePage() {
         if (u) {
           setHeaderIp(u.displayIp || u.currentIp || u.currentRequestIp || null);
         }
-        // Populate form with persisted profile data if present
-        if (u) {
+        // Populate form with persisted profile data if present (only on initial load)
+        if (u && !formLoaded) {
           setProfileForm((prev) => ({
             firstName: u.firstName ?? prev.firstName ?? "",
             middleName: u.middleName ?? prev.middleName ?? "",
@@ -202,7 +234,9 @@ export default function SuperAdminProfilePage() {
             socialFacebook: u.socialFacebook ?? prev.socialFacebook ?? "",
             socialLinkedIn: u.socialLinkedIn ?? prev.socialLinkedIn ?? "",
             socialInstagram: u.socialInstagram ?? prev.socialInstagram ?? "",
+            googleAnalyticsId: (u.googleAnalyticsId && typeof u.googleAnalyticsId === 'string') ? u.googleAnalyticsId : "",
           }));
+          setFormLoaded(true);
         }
         if (u) {
           setConnectedGithub(!!u.githubId);
@@ -227,13 +261,14 @@ export default function SuperAdminProfilePage() {
     const params = new URLSearchParams(window.location.search);
     const connected = params.get('connected');
     if (connected === 'github' || connected === 'google') {
-      // Reload to refresh connection status
+      // Reload to refresh connection status (but don't reset form)
       load();
       // Clean URL
       window.history.replaceState({}, '', window.location.pathname);
       showSuccess('Connected', `${connected === 'github' ? 'GitHub' : 'Google'} account connected successfully!`);
     }
-  }, [API_URL, showSuccess, updateUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [API_URL, formLoaded]);
 
   // Load saved card (masked) if present
   useEffect(() => {
@@ -1125,6 +1160,48 @@ export default function SuperAdminProfilePage() {
                     </div>
                   </CardContent>
                 </Card>
+        </div>
+
+        {/* Google Analytics Section */}
+        <div className="mt-6">
+          <Card className="shadow-sm">
+            <CardHeader>
+              <CardTitle>Google Analytics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="googleAnalyticsId">Google Analytics ID</Label>
+                  <Input
+                    id="googleAnalyticsId"
+                    value={profileForm.googleAnalyticsId || ""}
+                    onChange={(e) => updateField("googleAnalyticsId", e.target.value)}
+                    placeholder="G-DL87JFLJF2"
+                    className="mt-2"
+                  />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Enter your Google Analytics tracking ID (e.g., G-DL87JFLJF2). This will be used across the entire site.
+                  </p>
+                </div>
+                <div className="flex justify-end">
+                  <Button 
+                    className="bg-[#17D492] hover:bg-[#17D492]/90 text-white" 
+                    onClick={handleSaveAnalytics}
+                    disabled={savingAnalytics}
+                  >
+                    {savingAnalytics ? (
+                      <>
+                        <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin mr-2" />
+                        Saving...
+                      </>
+                    ) : (
+                      'Save Google Analytics ID'
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Danger Zone: Data export & Account deletion */}

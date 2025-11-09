@@ -1,0 +1,18 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/auth/layout,_N_T_/auth/dashboards/layout,_N_T_/auth/dashboards/user/layout,_N_T_/auth/dashboards/user/super-admin/layout,_N_T_/auth/dashboards/user/super-admin/profile/layout,_N_T_/auth/dashboards/user/super-admin/profile/page,_N_T_/auth/dashboards/user/super-admin/profile"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/auth/dashboards/user/super-admin/profile/__PAGE__",
+    "/auth/dashboards/user/super-admin/profile",
+    "/auth/dashboards/user/super-admin",
+    "/auth/dashboards/user",
+    "/auth/dashboards",
+    "/auth",
+    "/_index"
+  ]
+}

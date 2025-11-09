@@ -1,0 +1,14 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/access-required/page": "app/access-required/page.js",
+  "/auth/callback/page": "app/auth/callback/page.js",
+  "/auth/dashboards/user/super-admin/edit-site/page": "app/auth/dashboards/user/super-admin/edit-site/page.js",
+  "/auth/dashboards/user/super-admin/page": "app/auth/dashboards/user/super-admin/page.js",
+  "/auth/dashboards/user/super-admin/profile/page": "app/auth/dashboards/user/super-admin/profile/page.js",
+  "/demo/page": "app/demo/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
+  "/protected/page": "app/protected/page.js"
+}

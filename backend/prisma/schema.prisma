@@ -29,6 +29,7 @@ model User {
   socialFacebook String?
   socialLinkedIn String?
   socialInstagram String?
+  googleAnalyticsId String?
   
   // OAuth fields
   googleId      String?   @unique
@@ -69,6 +70,7 @@ model SuperAdmin {
   socialFacebook String?
   socialLinkedIn String?
   socialInstagram String?
+  googleAnalyticsId String?
   
   // OAuth fields (moved from User)
   googleId      String?   @unique

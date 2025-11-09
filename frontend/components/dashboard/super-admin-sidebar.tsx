@@ -335,10 +335,16 @@ export function SuperAdminSidebar() {
       .join(' ');
   })();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const profileBtnRef = useRef<HTMLButtonElement | null>(null);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
   const [profileMenuPos, setProfileMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const hoverState = useRef<{ overBtn: boolean; overMenu: boolean; closeTimer: number | null }>({ overBtn: false, overMenu: false, closeTimer: null });
+
+  // Ensure component is mounted before allowing hover menu
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const scheduleCloseIfNotHovering = () => {
     const state = hoverState.current;
@@ -355,30 +361,52 @@ export function SuperAdminSidebar() {
   };
 
   const updateProfileMenuPosition = () => {
-    if (!profileBtnRef.current) return;
-    const rect = profileBtnRef.current.getBoundingClientRect();
-    const intendedLeft = rect.right + 5 + window.scrollX; // 5px gap from sidebar
-    let top = rect.top + window.scrollY - 8;
+    if (!profileBtnRef.current || typeof window === 'undefined') return;
+    
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+      if (!profileBtnRef.current) return;
+      
+      const rect = profileBtnRef.current.getBoundingClientRect();
+      const intendedLeft = rect.right + 5; // 5px gap from sidebar
+      let top = rect.top - 8;
 
-    const menuEl = profileMenuRef.current;
-    const menuHeight = menuEl?.offsetHeight ?? 0;
-    const menuWidth = menuEl?.offsetWidth ?? 260;
+      const menuEl = profileMenuRef.current;
+      const menuHeight = menuEl?.offsetHeight ?? 0;
+      const menuWidth = menuEl?.offsetWidth ?? 260;
 
-    const minTop = window.scrollY + 12;
-    const maxTop = window.scrollY + window.innerHeight - menuHeight - 12;
-    top = Math.max(minTop, Math.min(top, maxTop));
+      const minTop = 12;
+      const maxTop = window.innerHeight - menuHeight - 12;
+      top = Math.max(minTop, Math.min(top, maxTop));
 
-    const viewportRight = window.scrollX + window.innerWidth;
-    const left = Math.min(intendedLeft, viewportRight - menuWidth - 5);
+      const viewportRight = window.innerWidth;
+      const left = Math.min(intendedLeft, viewportRight - menuWidth - 5);
 
-    setProfileMenuPos({ top, left });
+      setProfileMenuPos({ top, left });
+    });
   };
 
   useEffect(() => {
     if (!isProfileOpen) return;
+    
+    // Ensure button ref is ready before positioning
+    if (!profileBtnRef.current) {
+      // Retry after a short delay if ref isn't ready
+      const timer = setTimeout(() => {
+        if (profileBtnRef.current) {
+          updateProfileMenuPosition();
+        }
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+    
     // position after mount and next frame to capture size
     updateProfileMenuPosition();
-    requestAnimationFrame(() => updateProfileMenuPosition());
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        updateProfileMenuPosition();
+      });
+    });
 
     const handleClick = (e: MouseEvent) => {
       if (!profileMenuRef.current || !profileBtnRef.current) return;
@@ -460,11 +488,23 @@ export function SuperAdminSidebar() {
       )}>
         <button
           ref={profileBtnRef}
-          onClick={() => setIsProfileOpen((o) => !o)}
+          onClick={() => {
+            setIsProfileOpen((o) => !o);
+            if (!isProfileOpen) {
+              // Small delay to ensure DOM is ready
+              setTimeout(() => updateProfileMenuPosition(), 0);
+            }
+          }}
           onMouseEnter={() => {
+            if (!isMounted || !profileBtnRef.current) return;
             hoverState.current.overBtn = true;
             setIsProfileOpen(true);
-            requestAnimationFrame(() => updateProfileMenuPosition());
+            // Use multiple requestAnimationFrame calls to ensure positioning happens after render
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                updateProfileMenuPosition();
+              });
+            });
           }}
           onMouseLeave={() => {
             hoverState.current.overBtn = false;

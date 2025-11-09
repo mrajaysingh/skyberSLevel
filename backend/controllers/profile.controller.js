@@ -146,7 +146,8 @@ const updateProfile = async (req, res) => {
     const {
       firstName, middleName, lastName,
       designation, company, username, email,
-      socialFacebook, socialLinkedIn, socialInstagram
+      socialFacebook, socialLinkedIn, socialInstagram,
+      googleAnalyticsId
     } = req.body || {};
 
     const data = {
@@ -159,6 +160,7 @@ const updateProfile = async (req, res) => {
       ...(socialFacebook !== undefined ? { socialFacebook } : {}),
       ...(socialLinkedIn !== undefined ? { socialLinkedIn } : {}),
       ...(socialInstagram !== undefined ? { socialInstagram } : {}),
+      ...(googleAnalyticsId !== undefined ? { googleAnalyticsId: googleAnalyticsId?.trim() || null } : {}),
       // Only allow changing email if provided and different (optional)
       ...(email !== undefined ? { email } : {}),
     };
@@ -319,6 +321,7 @@ const exportMyData = async (req, res) => {
           socialFacebook: me?.socialFacebook || null,
           socialLinkedIn: me?.socialLinkedIn || null,
           socialInstagram: me?.socialInstagram || null,
+          googleAnalyticsId: me?.googleAnalyticsId || null,
         },
         oauth: {
           githubId: me?.githubId || null,

@@ -1,0 +1,763 @@
+{
+  "date": "2025-11-09",
+  "createdAt": "2025-11-09T06:14:00.278Z",
+  "lastModified": "2025-11-09T06:47:43.959Z",
+  "latestConfig": {
+    "hero": {
+      "badgeText": "New",
+      "typeWriterPhrases": [
+        "Enhanced AI Security Features",
+        "Smart Cybersecurity & Tech",
+        "Secure Digital Experiences",
+        "Innovative Security Solutions",
+        "Secure, Develop, Design"
+      ],
+      "heading": "Secure Your Digital Future With",
+      "headingHighlight": "SKYBER",
+      "description": "Leading cybersecurity solutions and exceptional web development to protect your business and accelerate your online growth.",
+      "primaryButtonText": "Get Started",
+      "secondaryButtonText": "About Us",
+      "secondaryButtonHref": "/about",
+      "heroImageUrl": "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg",
+      "features": [
+        {
+          "id": "1",
+          "icon": "Shield",
+          "text": "99.9% Uptime"
+        },
+        {
+          "id": "2",
+          "icon": "Lock",
+          "text": "SOC 2 Certified"
+        },
+        {
+          "id": "3",
+          "icon": "Zap",
+          "text": "24/7 Support"
+        }
+      ],
+      "trustPilotUrl": "https://www.trustpilot.com/review/skybersupport.me",
+      "trustPilotText": "Review us on Trustpilot"
+    }
+  },
+  "changeLog": [
+    {
+      "timestamp": "2025-11-09T06:14:00.278Z",
+      "previousConfig": {
+        "header": {
+          "logoUrl": "/favicon.svg",
+          "siteName": "SKYBER",
+          "navigationLinks": [
+            {
+              "id": "1",
+              "label": "About Us",
+              "href": "#about",
+              "order": 1
+            },
+            {
+              "id": "2",
+              "label": "Demo",
+              "href": "/demo",
+              "order": 2
+            },
+            {
+              "id": "3",
+              "label": "Insights",
+              "href": "#insights",
+              "order": 3
+            },
+            {
+              "id": "4",
+              "label": "Blogs",
+              "href": "#blogs",
+              "order": 4
+            },
+            {
+              "id": "5",
+              "label": "Policies",
+              "href": "/policies",
+              "order": 5
+            },
+            {
+              "id": "6",
+              "label": "Contact Us",
+              "href": "#contact",
+              "order": 6
+            }
+          ],
+          "headerBgColor": "#ffffff",
+          "headerTextColor": "#000000",
+          "stickyHeader": true
+        },
+        "lastModified": "2025-11-08T05:54:59.171Z",
+        "version": "1.0.0"
+      },
+      "note": "Initial backup for this day"
+    },
+    {
+      "timestamp": "2025-11-09T06:14:17.432Z",
+      "previousConfig": {
+        "header": {
+          "logoUrl": "/favicon.svg",
+          "siteName": "SKYBER",
+          "navigationLinks": [
+            {
+              "id": "1",
+              "label": "About U",
+              "href": "#about",
+              "order": 1
+            },
+            {
+              "id": "2",
+              "label": "Demo",
+              "href": "/demo",
+              "order": 2
+            },
+            {
+              "id": "3",
+              "label": "Insights",
+              "href": "#insights",
+              "order": 3
+            },
+            {
+              "id": "4",
+              "label": "Blogs",
+              "href": "#blogs",
+              "order": 4
+            },
+            {
+              "id": "5",
+              "label": "Policies",
+              "href": "/policies",
+              "order": 5
+            },
+            {
+              "id": "6",
+              "label": "Contact Us",
+              "href": "#contact",
+              "order": 6
+            }
+          ],
+          "headerBgColor": "#ffffff",
+          "headerTextColor": "#000000",
+          "stickyHeader": true
+        },
+        "lastModified": "2025-11-09T06:14:00.278Z",
+        "version": "1.0.0"
+      },
+      "note": "Configuration updated"
+    },
+    {
+      "timestamp": "2025-11-09T06:14:20.535Z",
+      "previousConfig": {
+        "header": {
+          "logoUrl": "/favicon.svg",
+          "siteName": "SKYBER",
+          "navigationLinks": [
+            {
+              "id": "1",
+              "label": "About U",
+              "href": "#about",
+              "order": 1
+            },
+            {
+              "id": "2",
+              "label": "Demo",
+              "href": "/demo",
+              "order": 2
+            },
+            {
+              "id": "3",
+              "label": "Insights",
+              "href": "#insights",
+              "order": 3
+            },
+            {
+              "id": "4",
+              "label": "Blogs",
+              "href": "#blogs",
+              "order": 4
+            },
+            {
+              "id": "5",
+              "label": "Policies",
+              "href": "/policies",
+              "order": 5
+            },
+            {
+              "id": "6",
+              "label": "Contact Us",
+              "href": "#contact",
+              "order": 6
+            }
+          ],
+          "headerBgColor": "#ffffff",
+          "headerTextColor": "#000000",
+          "stickyHeader": true
+        },
+        "lastModified": "2025-11-09T06:14:17.432Z",
+        "version": "1.0.0"
+      },
+      "note": "Configuration updated"
+    },
+    {
+      "timestamp": "2025-11-09T06:23:07.761Z",
+      "previousConfig": {
+        "header": {
+          "logoUrl": "/favicon.svg",
+          "siteName": "SKYBER",
+          "navigationLinks": [
+            {
+              "id": "1",
+              "label": "About U",
+              "href": "#about",
+              "order": 1
+            },
+            {
+              "id": "2",
+              "label": "Demo",
+              "href": "/demo",
+              "order": 2
+            },
+            {
+              "id": "3",
+              "label": "Insights",
+              "href": "#insights",
+              "order": 3
+            },
+            {
+              "id": "4",
+              "label": "Blogs",
+              "href": "#blogs",
+              "order": 4
+            },
+            {
+              "id": "5",
+              "label": "Policies",
+              "href": "/policies",
+              "order": 5
+            },
+            {
+              "id": "6",
+              "label": "Contact Us",
+              "href": "#contact",
+              "order": 6
+            }
+          ],
+          "headerBgColor": "#ffffff",
+          "headerTextColor": "#000000",
+          "stickyHeader": true
+        },
+        "lastModified": "2025-11-09T06:14:20.535Z",
+        "version": "1.0.0"
+      },
+      "note": "Configuration updated"
+    },
+    {
+      "timestamp": "2025-11-09T06:29:09.535Z",
+      "previousConfig": {
+        "header": {
+          "logoUrl": "/favicon.svg",
+          "siteName": "SKYBER",
+          "navigationLinks": [
+            {
+              "id": "1",
+              "label": "About U",
+              "href": "#about",
+              "order": 1
+            },
+            {
+              "id": "2",
+              "label": "Demo",
+              "href": "/demo",
+              "order": 2
+            },
+            {
+              "id": "3",
+              "label": "Insights",
+              "href": "#insights",
+              "order": 3
+            },
+            {
+              "id": "4",
+              "label": "Blogs",
+              "href": "#blogs",
+              "order": 4
+            },
+            {
+              "id": "5",
+              "label": "Policies",
+              "href": "/policies",
+              "order": 5
+            },
+            {
+              "id": "6",
+              "label": "Contact Us",
+              "href": "#contact",
+              "order": 6
+            }
+          ],
+          "headerBgColor": "#000000",
+          "headerTextColor": "#000000",
+          "stickyHeader": true
+        },
+        "lastModified": "2025-11-09T06:23:07.761Z",
+        "version": "1.0.0"
+      },
+      "note": "Configuration updated"
+    },
+    {
+      "timestamp": "2025-11-09T06:29:13.676Z",
+      "previousConfig": {
+        "header": {
+          "logoUrl": "/favicon.svg",
+          "siteName": "SKYBER",
+          "navigationLinks": [
+            {
+              "id": "1",
+              "label": "About U",
+              "href": "#about",
+              "order": 1
+            },
+            {
+              "id": "2",
+              "label": "Demo",
+              "href": "/demo",
+              "order": 2
+            },
+            {
+              "id": "3",
+              "label": "Insights",
+              "href": "#insights",
+              "order": 3
+            },
+            {
+              "id": "4",
+              "label": "Blogs",
+              "href": "#blogs",
+              "order": 4
+            },
+            {
+              "id": "5",
+              "label": "Policies",
+              "href": "/policies",
+              "order": 5
+            },
+            {
+              "id": "6",
+              "label": "Contact Us",
+              "href": "#contact",
+              "order": 6
+            }
+          ],
+          "headerBgColor": "#000000",
+          "headerTextColor": "#ffffff",
+          "stickyHeader": true
+        },
+        "lastModified": "2025-11-09T06:29:09.535Z",
+        "version": "1.0.0"
+      },
+      "note": "Configuration updated"
+    },
+    {
+      "timestamp": "2025-11-09T06:29:16.756Z",
+      "previousConfig": {
+        "header": {
+          "logoUrl": "/favicon.svg",
+          "siteName": "SKYBER",
+          "navigationLinks": [
+            {
+              "id": "1",
+              "label": "About U",
+              "href": "#about",
+              "order": 1
+            },
+            {
+              "id": "2",
+              "label": "Demo",
+              "href": "/demo",
+              "order": 2
+            },
+            {
+              "id": "3",
+              "label": "Insights",
+              "href": "#insights",
+              "order": 3
+            },
+            {
+              "id": "4",
+              "label": "Blogs",
+              "href": "#blogs",
+              "order": 4
+            },
+            {
+              "id": "5",
+              "label": "Policies",
+              "href": "/policies",
+              "order": 5
+            },
+            {
+              "id": "6",
+              "label": "Contact Us",
+              "href": "#contact",
+              "order": 6
+            }
+          ],
+          "headerBgColor": "#000000",
+          "headerTextColor": "#ffffff",
+          "stickyHeader": true
+        },
+        "lastModified": "2025-11-09T06:29:13.676Z",
+        "version": "1.0.0"
+      },
+      "note": "Configuration updated"
+    },
+    {
+      "timestamp": "2025-11-09T06:39:01.841Z",
+      "previousConfig": {
+        "header": {
+          "logoUrl": "/favicon.svg",
+          "siteName": "SKYBER",
+          "navigationLinks": [
+            {
+              "id": "1",
+              "label": "About U",
+              "href": "#about",
+              "order": 1
+            },
+            {
+              "id": "2",
+              "label": "Demo",
+              "href": "/demo",
+              "order": 2
+            },
+            {
+              "id": "3",
+              "label": "Insights",
+              "href": "#insights",
+              "order": 3
+            },
+            {
+              "id": "4",
+              "label": "Blogs",
+              "href": "#blogs",
+              "order": 4
+            },
+            {
+              "id": "5",
+              "label": "Policies",
+              "href": "/policies",
+              "order": 5
+            },
+            {
+              "id": "6",
+              "label": "Contact Us",
+              "href": "#contact",
+              "order": 6
+            }
+          ],
+          "headerBgColor": "#000000",
+          "headerTextColor": "#ffffff",
+          "stickyHeader": true,
+          "glassMorphismIntensity": 40
+        },
+        "lastModified": "2025-11-09T06:29:16.756Z",
+        "version": "1.0.0"
+      },
+      "note": "Configuration updated"
+    },
+    {
+      "timestamp": "2025-11-09T06:39:20.564Z",
+      "previousConfig": {
+        "header": {
+          "logoUrl": "/favicon.svg",
+          "siteName": "SKYBER",
+          "navigationLinks": [
+            {
+              "id": "1",
+              "label": "About U",
+              "href": "#about",
+              "order": 1
+            },
+            {
+              "id": "2",
+              "label": "Demo",
+              "href": "/demo",
+              "order": 2
+            },
+            {
+              "id": "3",
+              "label": "Insights",
+              "href": "#insights",
+              "order": 3
+            },
+            {
+              "id": "4",
+              "label": "Blogs",
+              "href": "#blogs",
+              "order": 4
+            },
+            {
+              "id": "5",
+              "label": "Policies",
+              "href": "/policies",
+              "order": 5
+            },
+            {
+              "id": "6",
+              "label": "Contact Us",
+              "href": "#contact",
+              "order": 6
+            }
+          ],
+          "headerBgColor": "#000000",
+          "headerTextColor": "#ffffff",
+          "stickyHeader": true,
+          "glassMorphismIntensity": 100
+        },
+        "lastModified": "2025-11-09T06:39:01.841Z",
+        "version": "1.0.0"
+      },
+      "note": "Configuration updated"
+    },
+    {
+      "timestamp": "2025-11-09T06:47:21.120Z",
+      "previousConfig": {
+        "header": {
+          "logoUrl": "/favicon.svg",
+          "siteName": "SKYBER",
+          "navigationLinks": [
+            {
+              "id": "1",
+              "label": "About U",
+              "href": "#about",
+              "order": 1
+            },
+            {
+              "id": "2",
+              "label": "Demo",
+              "href": "/demo",
+              "order": 2
+            },
+            {
+              "id": "3",
+              "label": "Insights",
+              "href": "#insights",
+              "order": 3
+            },
+            {
+              "id": "4",
+              "label": "Blogs",
+              "href": "#blogs",
+              "order": 4
+            },
+            {
+              "id": "5",
+              "label": "Policies",
+              "href": "/policies",
+              "order": 5
+            },
+            {
+              "id": "6",
+              "label": "Contact Us",
+              "href": "#contact",
+              "order": 6
+            }
+          ],
+          "headerBgColor": "#000000",
+          "headerTextColor": "#ffffff",
+          "stickyHeader": true,
+          "glassMorphismIntensity": 40
+        },
+        "lastModified": "2025-11-09T06:39:20.564Z",
+        "version": "1.0.0"
+      },
+      "note": "Configuration updated"
+    },
+    {
+      "timestamp": "2025-11-09T06:47:33.093Z",
+      "previousConfig": {
+        "header": {
+          "logoUrl": "/favicon.svg",
+          "siteName": "SKYBER",
+          "navigationLinks": [
+            {
+              "id": "1",
+              "label": "About U",
+              "href": "#about",
+              "order": 1
+            },
+            {
+              "id": "2",
+              "label": "Demo",
+              "href": "/demo",
+              "order": 2
+            },
+            {
+              "id": "3",
+              "label": "Insights",
+              "href": "#insights",
+              "order": 3
+            },
+            {
+              "id": "4",
+              "label": "Blogs",
+              "href": "#blogs",
+              "order": 4
+            },
+            {
+              "id": "5",
+              "label": "Policies",
+              "href": "/policies",
+              "order": 5
+            },
+            {
+              "id": "6",
+              "label": "Contact Us",
+              "href": "#contact",
+              "order": 6
+            }
+          ],
+          "headerBgColor": "#000000",
+          "headerTextColor": "#ffffff",
+          "stickyHeader": true,
+          "glassMorphismIntensity": 40
+        },
+        "lastModified": "2025-11-09T06:47:21.120Z",
+        "version": "1.0.0",
+        "hero": {
+          "badgeText": "New",
+          "typeWriterPhrases": [
+            "Enhanced AI Security Features",
+            "Smart Cybersecurity & Tech",
+            "Secure Digital Experiences",
+            "Innovative Security Solutions",
+            "Secure, Develop, Design"
+          ],
+          "heading": "Secure Your Digital Future With",
+          "headingHighlight": "SKYBER",
+          "description": "Leading cybersecurity solutions and exceptional web development to protect your business and accelerate your online growth.",
+          "primaryButtonText": "Get Started",
+          "secondaryButtonText": "About Us",
+          "secondaryButtonHref": "/about",
+          "heroImageUrl": "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg",
+          "features": [
+            {
+              "id": "1",
+              "icon": "Shield",
+              "text": "99.9% Uptime"
+            },
+            {
+              "id": "2",
+              "icon": "Lock",
+              "text": "SOC 2 Certified"
+            },
+            {
+              "id": "3",
+              "icon": "Zap",
+              "text": "24/7 Support"
+            }
+          ],
+          "trustPilotUrl": "https://www.trustpilot.com/review/skybersupport.me",
+          "trustPilotText": "Review us on Trustpilot"
+        }
+      },
+      "note": "Configuration updated"
+    },
+    {
+      "timestamp": "2025-11-09T06:47:43.959Z",
+      "previousConfig": {
+        "header": {
+          "logoUrl": "/favicon.svg",
+          "siteName": "SKYBER",
+          "navigationLinks": [
+            {
+              "id": "1",
+              "label": "About U",
+              "href": "#about",
+              "order": 1
+            },
+            {
+              "id": "2",
+              "label": "Demo",
+              "href": "/demo",
+              "order": 2
+            },
+            {
+              "id": "3",
+              "label": "Insights",
+              "href": "#insights",
+              "order": 3
+            },
+            {
+              "id": "4",
+              "label": "Blogs",
+              "href": "#blogs",
+              "order": 4
+            },
+            {
+              "id": "5",
+              "label": "Policies",
+              "href": "/policies",
+              "order": 5
+            },
+            {
+              "id": "6",
+              "label": "Contact Us",
+              "href": "#contact",
+              "order": 6
+            }
+          ],
+          "headerBgColor": "#000000",
+          "headerTextColor": "#ffffff",
+          "stickyHeader": true,
+          "glassMorphismIntensity": 40
+        },
+        "lastModified": "2025-11-09T06:47:33.093Z",
+        "version": "1.0.0",
+        "hero": {
+          "badgeText": "New",
+          "typeWriterPhrases": [
+            "Enhanced AI Security Features",
+            "Smart Cybersecurity & Tech",
+            "Secure Digital Experiences",
+            "Innovative Security Solutions",
+            "Secure, Develop, Design"
+          ],
+          "heading": "Secure Your Digital Future With",
+          "headingHighlight": "SKYBER",
+          "description": "Leading cybersecurity solutions and exceptional web development to protect your business and accelerate your online growth.",
+          "primaryButtonText": "Get Started",
+          "secondaryButtonText": "About Us",
+          "secondaryButtonHref": "/about",
+          "heroImageUrl": "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg",
+          "features": [
+            {
+              "id": "1",
+              "icon": "Shield",
+              "text": "99.9% Uptime"
+            },
+            {
+              "id": "2",
+              "icon": "Lock",
+              "text": "SOC 2 Certified"
+            },
+            {
+              "id": "3",
+              "icon": "Zap",
+              "text": "24/7 Support"
+            },
+            {
+              "id": "1762670851053",
+              "icon": "Shield",
+              "text": "85/88"
+            }
+          ],
+          "trustPilotUrl": "https://www.trustpilot.com/review/skybersupport.me",
+          "trustPilotText": "Review us on Trustpilot"
+        }
+      },
+      "note": "Configuration updated"
+    }
+  ]
+}

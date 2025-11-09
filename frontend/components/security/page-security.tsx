@@ -134,6 +134,15 @@ export function SecurityProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ email, password }),
       });
 
+      // Check if response is JSON before parsing
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        return {
+          success: false,
+          error: "Server returned invalid response. Please check if the backend is running."
+        };
+      }
+
       const data = await response.json();
 
       if (!response.ok || !data.success) {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { HeaderEditor } from "@/components/dashboard/header-editor";
+import { HeroEditor } from "@/components/dashboard/hero-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { DashboardBody } from "@/components/dashboard/dashboard-body";
@@ -79,22 +80,26 @@ export default function EditSitePage() {
             <HeaderEditor />
           </div>
 
+          {/* Hero Section */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-semibold">Hero Section</h3>
+                <p className="text-sm text-muted-foreground">
+                  Customize your homepage hero section content, images, and buttons
+                </p>
+              </div>
+            </div>
+            
+            <HeroEditor />
+          </div>
+
           {/* Coming Soon Sections */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <Card className="border-dashed opacity-60">
               <CardHeader>
                 <CardTitle>Footer Settings</CardTitle>
                 <CardDescription>Customize footer content and links</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">Coming soon...</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-dashed opacity-60">
-              <CardHeader>
-                <CardTitle>Hero Section</CardTitle>
-                <CardDescription>Edit homepage hero content</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">Coming soon...</p>

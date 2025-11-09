@@ -71,8 +71,10 @@ async function saveConfig(newConfig) {
     // Save the backup file with change log
     await fs.writeFile(backupPath, JSON.stringify(backupData, null, 2), 'utf8');
 
-    // Update default.json with new config
+    // Merge new config with existing config (don't overwrite other sections)
+    const existingConfig = await getCurrentConfig().catch(() => ({}));
     const configToSave = {
+      ...existingConfig,
       ...newConfig,
       lastModified: timestamp,
       version: '1.0.0'
