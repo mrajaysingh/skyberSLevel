@@ -30,7 +30,9 @@ interface HeaderConfig {
   siteName: string;
   navigationLinks: NavigationLink[];
   glassMorphismIntensity: number; // 0-100, controls opacity of glass effect
-  headerTextColor: string;
+  headerTextColor: string; // Legacy support - kept for backward compatibility
+  headerTextColorLight?: string; // Text color for light theme
+  headerTextColorDark?: string; // Text color for dark theme
   stickyHeader: boolean;
 }
 
@@ -47,7 +49,9 @@ export function HeaderEditor() {
       { id: "6", label: "Contact Us", href: "#contact", order: 6 },
     ],
     glassMorphismIntensity: 40, // Default 40% opacity
-    headerTextColor: "#000000",
+    headerTextColor: "#000000", // Legacy - kept for backward compatibility
+    headerTextColorLight: "#000000", // Default black for light theme
+    headerTextColorDark: "#ffffff", // Default white for dark theme
     stickyHeader: true,
   });
 
@@ -137,6 +141,19 @@ export function HeaderEditor() {
               loadedConfig.glassMorphismIntensity = 40; // Default intensity
             } else if (!loadedConfig.glassMorphismIntensity) {
               loadedConfig.glassMorphismIntensity = 40; // Default if neither exists
+            }
+            // Handle backward compatibility: if only headerTextColor exists, use it for both themes
+            if (loadedConfig.headerTextColor && !loadedConfig.headerTextColorLight && !loadedConfig.headerTextColorDark) {
+              loadedConfig.headerTextColorLight = loadedConfig.headerTextColor;
+              loadedConfig.headerTextColorDark = loadedConfig.headerTextColor;
+            } else {
+              // Set defaults if not present
+              if (!loadedConfig.headerTextColorLight) {
+                loadedConfig.headerTextColorLight = "#000000";
+              }
+              if (!loadedConfig.headerTextColorDark) {
+                loadedConfig.headerTextColorDark = "#ffffff";
+              }
             }
             setConfig(loadedConfig);
           }
@@ -515,22 +532,65 @@ export function HeaderEditor() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="text-color">Text Color</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="text-color"
-                  type="color"
-                  value={config.headerTextColor}
-                  onChange={(e) => setConfig({ ...config, headerTextColor: e.target.value })}
-                  className="w-16 h-10 p-1 cursor-pointer"
-                />
-                <Input
-                  value={config.headerTextColor}
-                  onChange={(e) => setConfig({ ...config, headerTextColor: e.target.value })}
-                  placeholder="#000000"
-                  className="flex-1"
-                />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="text-color-light">Header Text Color (Light Theme)</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="text-color-light"
+                    type="color"
+                    value={config.headerTextColorLight || config.headerTextColor || "#000000"}
+                    onChange={(e) => setConfig({ 
+                      ...config, 
+                      headerTextColorLight: e.target.value,
+                      headerTextColor: e.target.value // Keep legacy field in sync
+                    })}
+                    className="w-16 h-10 p-1 cursor-pointer"
+                  />
+                  <Input
+                    value={config.headerTextColorLight || config.headerTextColor || "#000000"}
+                    onChange={(e) => setConfig({ 
+                      ...config, 
+                      headerTextColorLight: e.target.value,
+                      headerTextColor: e.target.value // Keep legacy field in sync
+                    })}
+                    placeholder="#000000"
+                    className="flex-1"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Choose the text color for the header when using light theme
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="text-color-dark">Header Text Color (Dark Theme)</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="text-color-dark"
+                    type="color"
+                    value={config.headerTextColorDark || config.headerTextColor || "#ffffff"}
+                    onChange={(e) => setConfig({ 
+                      ...config, 
+                      headerTextColorDark: e.target.value,
+                      headerTextColor: e.target.value // Keep legacy field in sync
+                    })}
+                    className="w-16 h-10 p-1 cursor-pointer"
+                  />
+                  <Input
+                    value={config.headerTextColorDark || config.headerTextColor || "#ffffff"}
+                    onChange={(e) => setConfig({ 
+                      ...config, 
+                      headerTextColorDark: e.target.value,
+                      headerTextColor: e.target.value // Keep legacy field in sync
+                    })}
+                    placeholder="#ffffff"
+                    className="flex-1"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Choose the text color for the header when using dark theme
+                </p>
               </div>
             </div>
           </div>

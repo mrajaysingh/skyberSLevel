@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { SessionExpiredProvider, useSessionExpired } from "./session-expired-provider";
 
 interface SecurityContextType {
       isAuthenticated: boolean;
@@ -38,9 +39,10 @@ export const useSecurity = () => {
   return context;
 };
 
-export function SecurityProvider({ children }: { children: ReactNode }) {
+function SecurityProviderContent({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { showSessionExpired } = useSessionExpired();
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
@@ -92,7 +94,16 @@ export function SecurityProvider({ children }: { children: ReactNode }) {
       } catch (_) {}
       setIsAuthenticated(false);
       setUser(null);
-      router.push("/login");
+      
+      // Redirect to login on admin domain if on dashboard route
+      const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || 'admin.skyber.dev';
+      const adminBase = adminUrl.startsWith('http') ? adminUrl : `https://${adminUrl}`;
+      
+      if (isAuthRoute) {
+        window.location.href = `${adminBase}/login`;
+      } else {
+        router.push("/login");
+      }
     };
 
     // If on protected route without token → redirect
@@ -110,19 +121,28 @@ export function SecurityProvider({ children }: { children: ReactNode }) {
           cache: 'no-store'
         });
         if (!r.ok) {
-          redirectToLogin();
+          // Show session expired card instead of immediate redirect
+          if (r.status === 401) {
+            showSessionExpired();
+          } else {
+            redirectToLogin();
+          }
           return;
         }
         const j = await r.json().catch(() => ({}));
         if (!j?.success) {
-          redirectToLogin();
+          if (r.status === 401) {
+            showSessionExpired();
+          } else {
+            redirectToLogin();
+          }
         }
       } catch (_) {
         redirectToLogin();
       }
     };
     verify();
-  }, [pathname, router]);
+  }, [pathname, router, showSessionExpired]);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
@@ -166,11 +186,20 @@ export function SecurityProvider({ children }: { children: ReactNode }) {
       const redirectPath = sessionStorage.getItem("skyber_redirect_after_login");
       sessionStorage.removeItem("skyber_redirect_after_login");
 
+      // Get admin URL from environment variable
+      const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || 'admin.skyber.dev';
+      const adminBase = adminUrl.startsWith('http') ? adminUrl : `https://${adminUrl}`;
+
       if (redirectPath) {
-        router.push(redirectPath);
+        // If redirect path is a dashboard route, redirect to admin domain
+        if (redirectPath.startsWith('/auth/dashboards') || redirectPath.startsWith('/login')) {
+          window.location.href = `${adminBase}${redirectPath}`;
+        } else {
+          router.push(redirectPath);
+        }
       } else if (data.data.user.role === 'super-admin') {
-        // Auto-redirect super-admin to dashboard
-        router.push("/auth/dashboards/user/super-admin");
+        // Auto-redirect super-admin to dashboard on admin domain
+        window.location.href = `${adminBase}/auth/dashboards/user/super-admin`;
       } else {
         router.push("/");
       }
@@ -229,6 +258,14 @@ export function SecurityProvider({ children }: { children: ReactNode }) {
     <SecurityContext.Provider value={{ isAuthenticated, user, login, logout, updateUser }}>
       {children}
     </SecurityContext.Provider>
+  );
+}
+
+export function SecurityProvider({ children }: { children: ReactNode }) {
+  return (
+    <SessionExpiredProvider>
+      <SecurityProviderContent>{children}</SecurityProviderContent>
+    </SessionExpiredProvider>
   );
 }
 

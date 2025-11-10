@@ -24,7 +24,9 @@ interface HeaderConfig {
   navigationLinks: NavigationLink[];
   glassMorphismIntensity?: number; // 0-100, controls opacity of glass effect
   headerBgColor?: string; // Legacy support
-  headerTextColor: string;
+  headerTextColor: string; // Legacy support - kept for backward compatibility
+  headerTextColorLight?: string; // Text color for light theme
+  headerTextColorDark?: string; // Text color for dark theme
   stickyHeader: boolean;
 }
 
@@ -45,7 +47,9 @@ const Header = () => {
       { id: "6", label: "Contact Us", href: "#contact", order: 6 },
     ],
     glassMorphismIntensity: 40, // Default 40% opacity
-    headerTextColor: "#000000",
+    headerTextColor: "#000000", // Legacy - kept for backward compatibility
+    headerTextColorLight: "#000000", // Default black for light theme
+    headerTextColorDark: "#ffffff", // Default white for dark theme
     stickyHeader: true,
   });
   const pathname = usePathname();
@@ -81,6 +85,19 @@ const Header = () => {
                 loadedConfig.glassMorphismIntensity = 40; // Default intensity
               } else if (!loadedConfig.glassMorphismIntensity) {
                 loadedConfig.glassMorphismIntensity = 40; // Default if neither exists
+              }
+              // Handle backward compatibility: if only headerTextColor exists, use it for both themes
+              if (loadedConfig.headerTextColor && !loadedConfig.headerTextColorLight && !loadedConfig.headerTextColorDark) {
+                loadedConfig.headerTextColorLight = loadedConfig.headerTextColor;
+                loadedConfig.headerTextColorDark = loadedConfig.headerTextColor;
+              } else {
+                // Set defaults if not present
+                if (!loadedConfig.headerTextColorLight) {
+                  loadedConfig.headerTextColorLight = "#000000";
+                }
+                if (!loadedConfig.headerTextColorDark) {
+                  loadedConfig.headerTextColorDark = "#ffffff";
+                }
               }
               setHeaderConfig(loadedConfig);
             }
@@ -251,8 +268,11 @@ const Header = () => {
 	      ...(headerConfig.glassMorphismIntensity !== undefined && {
 	        backgroundColor: `hsl(var(--background) / ${(headerConfig.glassMorphismIntensity ?? 40) / 100})`,
 	      }),
-	      // Only apply custom text color in dark mode, use default theme color in light mode
-	      ...(isDarkMode && headerConfig.headerTextColor ? { color: headerConfig.headerTextColor } : {}),
+	      // Apply theme-specific text color
+	      ...(isDarkMode 
+	        ? (headerConfig.headerTextColorDark ? { color: headerConfig.headerTextColorDark } : {})
+	        : (headerConfig.headerTextColorLight ? { color: headerConfig.headerTextColorLight } : {})
+	      ),
 	    } as React.CSSProperties}
 	  >
         <div className="container mx-auto flex items-center justify-between h-full">

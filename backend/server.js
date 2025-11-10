@@ -24,6 +24,11 @@ const authRoutes = require('./routes/auth.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const profileRoutes = require('./routes/profile.routes');
 const siteConfigRoutes = require('./routes/site-config.routes');
+const smtpRoutes = require('./routes/smtp.routes');
+const emailRoutes = require('./routes/email.routes');
+
+// Import email scheduler
+const { processScheduledEmails } = require('./controllers/email.controller');
 
 // Logger removed
 
@@ -80,6 +85,8 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/cards', require('./routes/cards.routes'));
 app.use('/api/site-config', siteConfigRoutes);
+app.use('/api/smtp', smtpRoutes);
+app.use('/api/email', emailRoutes);
 // Logs route removed
 
 // 404 handler
@@ -114,11 +121,18 @@ const startServer = async () => {
       console.warn('   Authentication will use DB only');
     }
     
-    // Start server
-    app.listen(PORT, async () => {
+    // Start server - bind to all interfaces (0.0.0.0) to accept connections
+    app.listen(PORT, '0.0.0.0', () => {
       console.log('🚀 SKYBER Backend API is running');
-      console.log(`👉 Listening on http://localhost:${PORT}`);
+      console.log(`👉 Listening on http://0.0.0.0:${PORT} (accessible via http://localhost:${PORT})`);
       console.log(`🌐 CORS origin: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+      
+      // Start email scheduler - runs every minute to process scheduled emails
+      console.log('📧 Email scheduler started (checking every minute)');
+      processScheduledEmails(); // Run immediately on startup
+      setInterval(() => {
+        processScheduledEmails();
+      }, 60 * 1000); // Run every 60 seconds (1 minute)
     });
   } catch (error) {
     console.error('❌ Server failed to start:', error?.message || error);

@@ -1,1 +1,8 @@
-{}
+{
+  "/auth/dashboards/user/super-admin/edit-site/page": "app/auth/dashboards/user/super-admin/edit-site/page.js",
+  "/auth/dashboards/user/super-admin/page": "app/auth/dashboards/user/super-admin/page.js",
+  "/auth/dashboards/user/super-admin/settings/email/page": "app/auth/dashboards/user/super-admin/settings/email/page.js",
+  "/auth/dashboards/user/super-admin/settings/integrations/page": "app/auth/dashboards/user/super-admin/settings/integrations/page.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js"
+}

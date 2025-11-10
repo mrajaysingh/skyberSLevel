@@ -29,7 +29,7 @@ model User {
   socialFacebook String?
   socialLinkedIn String?
   socialInstagram String?
-  googleAnalyticsId String?
+  googleAnalyticsId String? // Google Analytics tracking ID
   
   // OAuth fields
   googleId      String?   @unique
@@ -48,6 +48,9 @@ model User {
   // Relations
   sessions      Session[]
   card          Crdsb?
+  smtpSettings  SmtpSettings[]
+  emails        Email[]
+  emailDrafts   EmailDraft[]
   
   @@map("users")
 }
@@ -70,7 +73,7 @@ model SuperAdmin {
   socialFacebook String?
   socialLinkedIn String?
   socialInstagram String?
-  googleAnalyticsId String?
+  googleAnalyticsId String? // Google Analytics tracking ID
   
   // OAuth fields (moved from User)
   googleId      String?   @unique
@@ -100,6 +103,9 @@ model SuperAdmin {
   // Relations
   sessions      Session[]
   card          Crdsb?
+  smtpSettings  SmtpSettings[]
+  emails        Email[]
+  emailDrafts   EmailDraft[]
   
   @@map("super_admins")
 }
@@ -115,7 +121,19 @@ model Session {
   refreshExpiresAt DateTime?
   userAgent     String?
   ipAddress     String?
-  isValid       Boolean   @default(true)
+  isValid       Boolean   @default(true) // true = current session, false = terminated
+  terminatedAt  DateTime? // When the session was terminated (null for current session)
+  
+  // Session approval fields
+  status        String    @default("active") // active, pending, approved, denied
+  pendingApprovalAt DateTime? // When the session was created and needs approval
+  approvedAt    DateTime? // When the session was approved
+  deniedAt      DateTime? // When the session was denied
+  
+  // Session activity tracking for auto-approval
+  lastActivityAt DateTime? // Last time the session had activity (user interaction, API calls, etc.)
+  browserVisible Boolean  @default(true) // Whether the browser tab is visible
+  userInteracting Boolean @default(false) // Whether the user is actively interacting
   
   // Timestamps
   createdAt     DateTime  @default(now())
@@ -130,6 +148,8 @@ model Session {
   @@index([token])
   @@index([refreshToken])
   @@index([expiresAt])
+  @@index([isValid, terminatedAt])
+  @@index([status, pendingApprovalAt])
   @@map("sessions")
 }
 
@@ -175,4 +195,151 @@ model Depricated {
   @@index([userId])
   @@index([superAdminId])
   @@map("depricated")
+}
+
+// SMTP Settings model - Stores SMTP configuration per user
+model SmtpSettings {
+  id            String    @id @default(uuid())
+  userId        String?   // Optional: if SMTP belongs to regular user
+  superAdminId  String?   // Optional: if SMTP belongs to super admin
+  
+  // SMTP Provider
+  provider      String    @default("custom") // brevo, gmail, outlook, custom, etc.
+  
+  // SMTP Configuration
+  host          String    // SMTP server host
+  port          Int       // SMTP port (587, 465, 25, etc.)
+  secure        Boolean   @default(false) // Use TLS/SSL
+  username      String    // SMTP username/login
+  password      String    // SMTP password/key (encrypted)
+  
+  // Email Configuration
+  fromName      String    @default("SKYBER TECHNOLOGIES")
+  fromEmail     String    @default("informer@skyber.dev")
+  toEmail       String?   // Default recipient email
+  
+  // Status
+  isActive      Boolean   @default(true)
+  isDefault     Boolean   @default(false) // Default SMTP for user
+  
+  // Test connection status
+  lastTestStatus String?  // success, failure, null
+  lastTestAt    DateTime?
+  lastTestError String?
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  superAdmin    SuperAdmin? @relation(fields: [superAdminId], references: [id], onDelete: Cascade)
+  history       SmtpSettingsHistory[]
+  emails        Email[]
+  
+  @@index([userId])
+  @@index([superAdminId])
+  @@index([provider])
+  @@index([isActive])
+  @@map("smtp_settings")
+}
+
+// SMTP Settings History - Tracks all changes to SMTP settings
+model SmtpSettingsHistory {
+  id            String    @id @default(uuid())
+  smtpSettingsId String
+  
+  // SMTP Configuration (snapshot)
+  provider      String
+  host          String
+  port          Int
+  secure        Boolean
+  username      String
+  password      String // Encrypted
+  fromName      String
+  fromEmail     String
+  toEmail       String?
+  
+  // Change metadata
+  changedBy     String?   // User ID who made the change
+  changeType    String    // created, updated, deleted
+  changeReason  String?   // Optional reason for change
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  
+  // Relations
+  smtpSettings  SmtpSettings @relation(fields: [smtpSettingsId], references: [id], onDelete: Cascade)
+  
+  @@index([smtpSettingsId])
+  @@index([createdAt])
+  @@map("smtp_settings_history")
+}
+
+// Email model - Stores sent emails
+model Email {
+  id            String    @id @default(uuid())
+  userId        String?   // Optional: if email belongs to regular user
+  superAdminId  String?   // Optional: if email belongs to super admin
+  smtpSettingsId String?  // SMTP settings used to send
+  
+  // Email content
+  to            String    // Recipient email(s) - comma separated or single
+  cc            String?   // CC recipients
+  bcc           String?   // BCC recipients
+  subject       String    // Email subject
+  html          String?   // HTML content
+  text          String?   // Plain text content
+  
+  // Status
+  status        String    @default("sent") // sent, failed, pending, scheduled
+  messageId     String?   // SMTP message ID
+  error         String?   // Error message if failed
+  
+  // Timestamps
+  sentAt        DateTime? // When email was actually sent
+  scheduledFor  DateTime? // When email is scheduled to be sent
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  superAdmin    SuperAdmin? @relation(fields: [superAdminId], references: [id], onDelete: Cascade)
+  smtpSettings  SmtpSettings? @relation(fields: [smtpSettingsId], references: [id], onDelete: SetNull)
+  
+  @@index([userId])
+  @@index([superAdminId])
+  @@index([smtpSettingsId])
+  @@index([status])
+  @@index([sentAt])
+  @@index([scheduledFor])
+  @@map("emails")
+}
+
+// Email Draft model - Stores draft emails
+model EmailDraft {
+  id            String    @id @default(uuid())
+  userId        String?   // Optional: if draft belongs to regular user
+  superAdminId  String?   // Optional: if draft belongs to super admin
+  
+  // Email content
+  to            String?   // Recipient email(s)
+  cc            String?   // CC recipients
+  bcc           String?   // BCC recipients
+  subject       String?   // Email subject
+  html          String?   // HTML content
+  text          String?   // Plain text content
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  superAdmin    SuperAdmin? @relation(fields: [superAdminId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([superAdminId])
+  @@index([updatedAt])
+  @@map("email_drafts")
 }

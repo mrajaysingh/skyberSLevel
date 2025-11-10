@@ -1,5 +1,30 @@
 {
-  "app": {},
+  "app": {
+    "[project]/app/auth/dashboards/user/super-admin/edit-site/page": [
+      "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2"
+    ],
+    "[project]/app/auth/dashboards/user/super-admin/page": [
+      "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2"
+    ],
+    "[project]/app/auth/dashboards/user/super-admin/settings/email/page": [
+      "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2"
+    ],
+    "[project]/app/auth/dashboards/user/super-admin/settings/integrations/page": [
+      "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2"
+    ],
+    "[project]/app/login/page": [
+      "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2"
+    ],
+    "[project]/app/page": [
+      "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2"
+    ]
+  },
   "appUsingSizeAdjust": false,
   "pages": {},
   "pagesUsingSizeAdjust": false

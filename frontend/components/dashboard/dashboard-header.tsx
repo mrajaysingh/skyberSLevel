@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSecurity } from "@/components/security/page-security";
 import { Button } from "@/components/ui/button";
 import { DashboardThemeSwitcher } from "@/components/dashboard/dashboard-theme-switcher";
@@ -14,23 +14,93 @@ type DashboardHeaderProps = {
   onRefresh?: () => void;
   refreshing?: boolean;
   rightActions?: React.ReactNode;
-  showStatus?: boolean;
-  showIP?: boolean;
 };
 
 export function DashboardHeader({
   title = "Dashboard",
   subtitle,
-  ip,
-  onRefresh,
-  refreshing = false,
+  ip: propIp,
+  onRefresh: propOnRefresh,
+  refreshing: propRefreshing = false,
   rightActions,
-  showStatus = true,
-  showIP = true,
 }: DashboardHeaderProps) {
   const { user, logout } = useSecurity();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [ip, setIp] = useState<string | null>(propIp || null);
+  const [refreshing, setRefreshing] = useState(propRefreshing);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+  // Fetch IP from dashboard API if not provided
+  useEffect(() => {
+    if (propIp !== undefined) {
+      setIp(propIp);
+      return;
+    }
+    
+    const fetchIp = async () => {
+      try {
+        const sessionToken = localStorage.getItem("sessionToken");
+        if (!sessionToken) return;
+        
+        const response = await fetch(`${API_URL}/api/dashboard/super-admin`, {
+          headers: { 'Authorization': `Bearer ${sessionToken}` },
+          cache: 'no-store'
+        });
+        
+        if (!response.ok) return;
+        
+        const data = await response.json();
+        const userData = data?.data?.dashboard?.user;
+        if (userData) {
+          setIp(userData.displayIp || userData.currentIp || userData.currentRequestIp || null);
+        }
+      } catch (error) {
+        console.error("Error fetching IP:", error);
+      }
+    };
+    
+    fetchIp();
+  }, [propIp, API_URL]);
+
+  // Update refreshing state when prop changes
+  useEffect(() => {
+    setRefreshing(propRefreshing);
+  }, [propRefreshing]);
+
+  // Default refresh handler if not provided
+  const handleRefresh = async () => {
+    if (propOnRefresh) {
+      propOnRefresh();
+      return;
+    }
+    
+    // Default refresh: reload dashboard data and update IP
+    setRefreshing(true);
+    try {
+      const sessionToken = localStorage.getItem("sessionToken");
+      if (!sessionToken) return;
+      
+      const response = await fetch(`${API_URL}/api/dashboard/super-admin?ts=${Date.now()}`, {
+        headers: { 'Authorization': `Bearer ${sessionToken}` },
+        cache: 'no-store'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const userData = data?.data?.dashboard?.user;
+        if (userData) {
+          setIp(userData.displayIp || userData.currentIp || userData.currentRequestIp || null);
+        }
+        // Trigger a page refresh to update all data
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Error refreshing:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const performLogout = async () => {
     if (isLoggingOut) return;
@@ -65,37 +135,38 @@ export function DashboardHeader({
             </h1>
           </div>
           <div className="flex items-center gap-4">
-            {showStatus && (
-              <div className="hidden sm:flex flex-col items-end gap-1">
-                <div className="flex items-center gap-2 text-sm">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-foreground font-medium">{user?.name || "User"}</span>
-                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-[#17D492]/10 text-[#17D492]">
-                    ● Online
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  {showIP && ip ? <span>IP: {ip}</span> : null}
-                  <span className="px-2 py-0.5 bg-[#17D492]/10 text-[#17D492] rounded-full font-medium">
-                    {user?.role || "user"}
-                  </span>
-                </div>
+            {/* Username, IP, and Role - Always visible */}
+            <div className="hidden sm:flex flex-col items-end gap-1">
+              <div className="flex items-center gap-2 text-sm">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span className="text-foreground font-medium">{user?.name || "User"}</span>
+                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-[#17D492]/10 text-[#17D492]">
+                  ● Online
+                </span>
               </div>
-            )}
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                {ip ? <span>IP: {ip}</span> : null}
+                <span className="px-2 py-0.5 bg-[#17D492]/10 text-[#17D492] rounded-full font-medium">
+                  {user?.role || "user"}
+                </span>
+              </div>
+            </div>
+            {/* Theme Switcher - Always visible */}
             <DashboardThemeSwitcher />
-            {onRefresh ? (
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={onRefresh}
-                disabled={refreshing}
-                className="relative"
-                aria-label="Refresh dashboard"
-              >
-                <svg className={refreshing ? "h-4 w-4 animate-spin" : "h-4 w-4"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.13-3.36L23 10M1 14l5.36 5.36A9 9 0 0020.49 15"/></svg>
-              </Button>
-            ) : null}
+            {/* Refresh Button - Always visible */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="relative"
+              aria-label="Refresh dashboard"
+            >
+              <svg className={refreshing ? "h-4 w-4 animate-spin" : "h-4 w-4"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.13-3.36L23 10M1 14l5.36 5.36A9 9 0 0020.49 15"/></svg>
+            </Button>
+            {/* Custom right actions (if any) */}
             {rightActions}
+            {/* Logout Button - Always visible */}
             <Button
               variant="outline"
               onClick={() => setShowLogoutDialog(true)}

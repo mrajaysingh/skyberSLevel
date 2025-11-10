@@ -111,25 +111,13 @@ body::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
 }
 
-/* Sidebar custom scrollbar */
+/* Sidebar custom scrollbar - hidden but scrollable */
 .sidebar-scroll {
-  scrollbar-width: thin; /* Firefox */
+  scrollbar-width: none; /* Firefox - hide scrollbar */
+  -ms-overflow-style: none; /* IE and Edge - hide scrollbar */
 }
 .sidebar-scroll::-webkit-scrollbar {
-  width: 3px; /* Chrome, Safari */
-}
-.sidebar-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-.sidebar-scroll::-webkit-scrollbar-thumb {
-  background-color: #000000; /* light theme default */
-  border-radius: 9999px;
-}
-.dark .sidebar-scroll {
-  scrollbar-color: #17D492 transparent; /* Firefox */
-}
-.dark .sidebar-scroll::-webkit-scrollbar-thumb {
-  background-color: #17D492; /* dark theme */
+  display: none; /* Chrome, Safari, Opera - hide scrollbar */
 }
 
 /* TypeWriter blinking cursor animation */

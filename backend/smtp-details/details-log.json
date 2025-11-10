@@ -1,0 +1,382 @@
+[
+  {
+    "id": "86a4b14c18dc651cd7f2ee9129ff71fc",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T02:31:33.647Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "3cf095d48be28e21cf88b8ae48de6763",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T02:48:06.206Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "8fd880843fd33d3ea4eb5a896232e78b",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T02:55:17.716Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "029d0ab7d0d0637bbde6e7f88f286987",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T03:00:28.396Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "failure",
+    "testError": "logger[level] is not a function"
+  },
+  {
+    "id": "5c4b0514439e52c074442a179d562074",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T03:01:56.787Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "67b506fa016c839939801a9134e018fe",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T03:09:07.355Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "14a0c237b30a24274c3da8376638c23d",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T03:18:16.118Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "8b1be1f05f02451a27bbd4160459c19c",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T04:34:00.275Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "1d02bd20c51b98e001f7140632a999ec",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T04:34:34.259Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "256e98ff40689b5766c7b7c97647e955",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T04:36:11.575Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "2f158c0d74ac3cadd2f0e6b0ab08b108",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T04:39:07.169Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "c43c99d9d43c0ba4a146ca8f18521271",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T04:40:09.962Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "10ce6bfff0a403bc63520f7ba3256854",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T04:40:28.576Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "7048312e4c365fe59e401cbf692a3fc8",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T04:42:10.445Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "8f502567a6bb4d592710535456a5cfea",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T04:43:31.021Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "82a58be0e76a9959eb6315cb81af86de",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T04:45:49.957Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "efee18dd025b1258d8d486f8e394b846",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T04:47:13.467Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "3951b56d9b508a27701c8e4bf3156a4b",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T05:01:31.666Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  },
+  {
+    "id": "ad4aced3de01aa062e4065c4ae416eac",
+    "smtpId": "e63fa5e9-3d53-41cf-8bfe-9568a15dad21",
+    "userId": "674abcc0-6be3-4cee-9418-822bc7e17338",
+    "action": "tested",
+    "timestamp": "2025-11-10T05:03:44.525Z",
+    "settings": {
+      "provider": "brevo",
+      "host": "smtp-relay.brevo.com",
+      "port": 587,
+      "secure": false,
+      "username": "9b30f6001@smtp-brevo.com",
+      "passwordChanged": false,
+      "fromName": "SKYBER TECHNOLOGIES",
+      "fromEmail": "informer@skyber.dev",
+      "toEmail": "admin@skyber.dev"
+    },
+    "testStatus": "success",
+    "testError": null
+  }
+]

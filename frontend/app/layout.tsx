@@ -9,6 +9,7 @@ import { ToastProvider } from "@/components/ui/toast-provider";
 import { FormValidationHandler } from "@/components/ui/form-validation-handler";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { MobileRedirect } from "@/components/mobile-redirect";
+import { ApiClientInit } from "@/components/security/api-client-init";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -67,6 +68,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/favicon.svg" />
       </head>
       <body className={`${inter.className} antialiased`} suppressHydrationWarning>
+        <ApiClientInit />
         <MobileRedirect />
         <GoogleAnalytics />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

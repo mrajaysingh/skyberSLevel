@@ -1,6 +1,6 @@
 # Domain Setup Guide: m.skyber.dev & api.skyber.dev
 
-This guide covers setting up `m.skyber.dev` (mobile frontend) and `api.skyber.dev` (backend API) on an EC2 instance with PM2 and Apache.
+This guide covers setting up `m.skyber.dev` (mobile frontend) and `api.skyber.dev` (backend API) on an EC2 instance with PM2 and Nginx.
 
 ## Prerequisites
 
@@ -9,7 +9,7 @@ This guide covers setting up `m.skyber.dev` (mobile frontend) and `api.skyber.de
 - Domain names `m.skyber.dev` and `api.skyber.dev` pointing to your EC2 instance IP
 - Node.js and npm installed
 - PM2 installed globally
-- Apache2 installed
+- Nginx installed
 
 ## Step 1: DNS Configuration
 
@@ -52,20 +52,15 @@ sudo apt-get install -y nodejs
 # Install PM2 globally
 sudo npm install -g pm2
 
-# Install Apache2
-sudo apt install apache2 -y
+# Install Nginx
+sudo apt install nginx -y
 
 # Install Certbot for SSL certificates
-sudo apt install certbot python3-certbot-apache -y
+sudo apt install certbot python3-certbot-nginx -y
 
-# Enable required Apache modules
-sudo a2enmod proxy
-sudo a2enmod proxy_http
-sudo a2enmod proxy_balancer
-sudo a2enmod lbmethod_byrequests
-sudo a2enmod headers
-sudo a2enmod ssl
-sudo a2enmod rewrite
+# Start and enable Nginx
+sudo systemctl start nginx
+sudo systemctl enable nginx
 ```
 
 ## Step 3: Setup Backend API (api.skyber.dev)
@@ -223,91 +218,90 @@ module.exports = {
 };
 ```
 
-## Step 5: Configure Apache Virtual Hosts
+## Step 5: Configure Nginx Server Blocks
 
-### 5.1 Create Virtual Host for API (api.skyber.dev)
+### 5.1 Create Server Block for API (api.skyber.dev)
 
 ```bash
-sudo nano /etc/apache2/sites-available/api.skyber.dev.conf
+sudo nano /etc/nginx/sites-available/api.skyber.dev
 ```
 
 Add the following configuration:
 
-```apache
-<VirtualHost *:80>
-    ServerName api.skyber.dev
-    ServerAlias www.api.skyber.dev
-    
+```nginx
+server {
+    listen 80;
+    server_name api.skyber.dev www.api.skyber.dev;
+
+    # Logging
+    access_log /var/log/nginx/api.skyber.dev_access.log;
+    error_log /var/log/nginx/api.skyber.dev_error.log;
+
     # Proxy all requests to Node.js backend
-    ProxyPreserveHost On
-    ProxyRequests Off
-    
-    <Proxy *>
-        Order deny,allow
-        Allow from all
-    </Proxy>
-    
-    ProxyPass / http://localhost:3001/
-    ProxyPassReverse / http://localhost:3001/
-    
-    # Logging
-    ErrorLog ${APACHE_LOG_DIR}/api.skyber.dev_error.log
-    CustomLog ${APACHE_LOG_DIR}/api.skyber.dev_access.log combined
-</VirtualHost>
+    location / {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
 ```
 
-### 5.2 Create Virtual Host for Frontend (m.skyber.dev)
+### 5.2 Create Server Block for Frontend (m.skyber.dev)
 
 ```bash
-sudo nano /etc/apache2/sites-available/m.skyber.dev.conf
+sudo nano /etc/nginx/sites-available/m.skyber.dev
 ```
 
 Add the following configuration:
 
-```apache
-<VirtualHost *:80>
-    ServerName m.skyber.dev
-    ServerAlias www.m.skyber.dev
-    
-    # Proxy all requests to Next.js frontend
-    ProxyPreserveHost On
-    ProxyRequests Off
-    
-    <Proxy *>
-        Order deny,allow
-        Allow from all
-    </Proxy>
-    
-    ProxyPass / http://localhost:3000/
-    ProxyPassReverse / http://localhost:3000/
-    
-    # WebSocket support for Next.js
-    RewriteEngine on
-    RewriteCond %{HTTP:Upgrade} websocket [NC]
-    RewriteCond %{HTTP:Connection} upgrade [NC]
-    RewriteRule ^/?(.*) "ws://localhost:3000/$1" [P,L]
-    
+```nginx
+server {
+    listen 80;
+    server_name m.skyber.dev www.m.skyber.dev;
+
     # Logging
-    ErrorLog ${APACHE_LOG_DIR}/m.skyber.dev_error.log
-    CustomLog ${APACHE_LOG_DIR}/m.skyber.dev_access.log combined
-</VirtualHost>
+    access_log /var/log/nginx/m.skyber.dev_access.log;
+    error_log /var/log/nginx/m.skyber.dev_error.log;
+
+    # Proxy all requests to Next.js frontend
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # WebSocket support for Next.js
+        proxy_set_header Connection "upgrade";
+    }
+}
 ```
 
-### 5.3 Enable Sites and Restart Apache
+### 5.3 Enable Sites and Restart Nginx
 
 ```bash
-# Enable the sites
-sudo a2ensite api.skyber.dev.conf
-sudo a2ensite m.skyber.dev.conf
+# Create symbolic links to enable sites
+sudo ln -s /etc/nginx/sites-available/api.skyber.dev /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/m.skyber.dev /etc/nginx/sites-enabled/
 
-# Disable default site (optional)
-sudo a2dissite 000-default.conf
+# Remove default site (optional)
+sudo rm /etc/nginx/sites-enabled/default
 
-# Test Apache configuration
-sudo apache2ctl configtest
+# Test Nginx configuration
+sudo nginx -t
 
-# Restart Apache
-sudo systemctl restart apache2
+# Restart Nginx
+sudo systemctl restart nginx
 ```
 
 ## Step 6: Setup SSL Certificates (HTTPS)
@@ -316,12 +310,12 @@ sudo systemctl restart apache2
 
 ```bash
 # Obtain certificate for api.skyber.dev
-sudo certbot --apache -d api.skyber.dev -d www.api.skyber.dev
+sudo certbot --nginx -d api.skyber.dev -d www.api.skyber.dev
 
 # Obtain certificate for m.skyber.dev
-sudo certbot --apache -d m.skyber.dev -d www.m.skyber.dev
+sudo certbot --nginx -d m.skyber.dev -d www.m.skyber.dev
 
-# Certbot will automatically update your Apache configuration
+# Certbot will automatically update your Nginx configuration
 ```
 
 ### 6.2 Auto-Renewal Setup
@@ -335,148 +329,132 @@ sudo certbot renew --dry-run
 sudo systemctl status certbot.timer
 ```
 
-## Step 7: Update Apache Configurations for HTTPS
+## Step 7: Update Nginx Configurations for HTTPS
 
 After SSL certificates are installed, Certbot will have updated your configurations. However, you may need to manually update them for better security:
 
-### 7.1 Update API Virtual Host (HTTPS)
+### 7.1 Update API Server Block (HTTPS)
 
 ```bash
-sudo nano /etc/apache2/sites-available/api.skyber.dev-le-ssl.conf
+sudo nano /etc/nginx/sites-available/api.skyber.dev
 ```
 
-Ensure it includes:
+After Certbot runs, your configuration should look like this (Certbot adds SSL automatically):
 
-```apache
-<VirtualHost *:443>
-    ServerName api.skyber.dev
-    ServerAlias www.api.skyber.dev
-    
-    # SSL Configuration
-    SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/api.skyber.dev/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/api.skyber.dev/privkey.pem
-    Include /etc/letsencrypt/options-ssl-apache.conf
-    
+```nginx
+server {
+    listen 80;
+    server_name api.skyber.dev www.api.skyber.dev;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name api.skyber.dev www.api.skyber.dev;
+
+    # SSL Configuration (added by Certbot)
+    ssl_certificate /etc/letsencrypt/live/api.skyber.dev/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.skyber.dev/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
     # Security Headers
-    Header always set X-Content-Type-Options "nosniff"
-    Header always set X-Frame-Options "SAMEORIGIN"
-    Header always set X-XSS-Protection "1; mode=block"
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
     
     # CORS Headers (if needed)
-    Header always set Access-Control-Allow-Origin "*"
-    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-    Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
-    
-    # Proxy Configuration
-    ProxyPreserveHost On
-    ProxyRequests Off
-    
-    <Proxy *>
-        Order deny,allow
-        Allow from all
-    </Proxy>
-    
-    ProxyPass / http://localhost:3001/
-    ProxyPassReverse / http://localhost:3001/
-    
+    add_header Access-Control-Allow-Origin "*" always;
+    add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+    add_header Access-Control-Allow-Headers "Content-Type, Authorization" always;
+
     # Logging
-    ErrorLog ${APACHE_LOG_DIR}/api.skyber.dev_error.log
-    CustomLog ${APACHE_LOG_DIR}/api.skyber.dev_access.log combined
-</VirtualHost>
+    access_log /var/log/nginx/api.skyber.dev_access.log;
+    error_log /var/log/nginx/api.skyber.dev_error.log;
+
+    # Proxy all requests to Node.js backend
+    location / {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
 ```
 
-### 7.2 Update Frontend Virtual Host (HTTPS)
+### 7.2 Update Frontend Server Block (HTTPS)
 
 ```bash
-sudo nano /etc/apache2/sites-available/m.skyber.dev-le-ssl.conf
+sudo nano /etc/nginx/sites-available/m.skyber.dev
 ```
 
-Ensure it includes:
+After Certbot runs, your configuration should look like this:
 
-```apache
-<VirtualHost *:443>
-    ServerName m.skyber.dev
-    ServerAlias www.m.skyber.dev
-    
-    # SSL Configuration
-    SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/m.skyber.dev/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/m.skyber.dev/privkey.pem
-    Include /etc/letsencrypt/options-ssl-apache.conf
-    
+```nginx
+server {
+    listen 80;
+    server_name m.skyber.dev www.m.skyber.dev;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name m.skyber.dev www.m.skyber.dev;
+
+    # SSL Configuration (added by Certbot)
+    ssl_certificate /etc/letsencrypt/live/m.skyber.dev/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/m.skyber.dev/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
     # Security Headers
-    Header always set X-Content-Type-Options "nosniff"
-    Header always set X-Frame-Options "SAMEORIGIN"
-    Header always set X-XSS-Protection "1; mode=block"
-    Header always set Referrer-Policy "strict-origin-when-cross-origin"
-    
-    # Proxy Configuration
-    ProxyPreserveHost On
-    ProxyRequests Off
-    
-    <Proxy *>
-        Order deny,allow
-        Allow from all
-    </Proxy>
-    
-    ProxyPass / http://localhost:3000/
-    ProxyPassReverse / http://localhost:3000/
-    
-    # WebSocket support
-    RewriteEngine on
-    RewriteCond %{HTTP:Upgrade} websocket [NC]
-    RewriteCond %{HTTP:Connection} upgrade [NC]
-    RewriteRule ^/?(.*) "ws://localhost:3000/$1" [P,L]
-    
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
     # Logging
-    ErrorLog ${APACHE_LOG_DIR}/m.skyber.dev_error.log
-    CustomLog ${APACHE_LOG_DIR}/m.skyber.dev_access.log combined
-</VirtualHost>
+    access_log /var/log/nginx/m.skyber.dev_access.log;
+    error_log /var/log/nginx/m.skyber.dev_error.log;
+
+    # Proxy all requests to Next.js frontend
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # WebSocket support for Next.js
+        proxy_set_header Connection "upgrade";
+    }
+}
 ```
 
-### 7.3 Redirect HTTP to HTTPS
-
-Update the HTTP virtual hosts to redirect to HTTPS:
+### 7.3 Test and Reload Nginx
 
 ```bash
-sudo nano /etc/apache2/sites-available/api.skyber.dev.conf
-```
+# Test Nginx configuration
+sudo nginx -t
 
-```apache
-<VirtualHost *:80>
-    ServerName api.skyber.dev
-    ServerAlias www.api.skyber.dev
-    
-    # Redirect to HTTPS
-    Redirect permanent / https://api.skyber.dev/
-</VirtualHost>
-```
-
-```bash
-sudo nano /etc/apache2/sites-available/m.skyber.dev.conf
-```
-
-```apache
-<VirtualHost *:80>
-    ServerName m.skyber.dev
-    ServerAlias www.m.skyber.dev
-    
-    # Redirect to HTTPS
-    Redirect permanent / https://m.skyber.dev/
-</VirtualHost>
-```
-
-Restart Apache:
-```bash
-sudo systemctl restart apache2
+# Reload Nginx (no downtime)
+sudo systemctl reload nginx
 ```
 
 ## Step 8: Configure Firewall
 
 ```bash
 # Allow HTTP and HTTPS traffic
-sudo ufw allow 'Apache Full'
+sudo ufw allow 'Nginx Full'
 # OR
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
@@ -507,16 +485,20 @@ pm2 logs m-skyber
 pm2 monit
 ```
 
-### 9.2 Check Apache Status
+### 9.2 Check Nginx Status
 
 ```bash
-# Check Apache status
-sudo systemctl status apache2
+# Check Nginx status
+sudo systemctl status nginx
 
-# Check Apache error logs
-sudo tail -f /var/log/apache2/error.log
-sudo tail -f /var/log/apache2/api.skyber.dev_error.log
-sudo tail -f /var/log/apache2/m.skyber.dev_error.log
+# Check Nginx error logs
+sudo tail -f /var/log/nginx/error.log
+sudo tail -f /var/log/nginx/api.skyber.dev_error.log
+sudo tail -f /var/log/nginx/m.skyber.dev_error.log
+
+# Check Nginx access logs
+sudo tail -f /var/log/nginx/api.skyber.dev_access.log
+sudo tail -f /var/log/nginx/m.skyber.dev_access.log
 ```
 
 ### 9.3 Test Domains
@@ -566,20 +548,23 @@ pm2 monit
 pm2 save
 ```
 
-### Apache Commands
+### Nginx Commands
 
 ```bash
-# Restart Apache
-sudo systemctl restart apache2
+# Restart Nginx
+sudo systemctl restart nginx
 
-# Reload Apache (without downtime)
-sudo systemctl reload apache2
+# Reload Nginx (without downtime)
+sudo systemctl reload nginx
 
 # Check configuration
-sudo apache2ctl configtest
+sudo nginx -t
 
 # View error logs
-sudo tail -f /var/log/apache2/error.log
+sudo tail -f /var/log/nginx/error.log
+
+# View access logs
+sudo tail -f /var/log/nginx/access.log
 ```
 
 ### Update Application

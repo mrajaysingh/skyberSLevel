@@ -26,11 +26,14 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$ne
 function middleware(request) {
     const { pathname, search, hash } = request.nextUrl;
     const hostname = request.headers.get('host') || '';
-    // Get mobile URL from environment variable
+    // Get URLs from environment variables
     const mobileUrl = process.env.MOBILE_URL || 'm.skyber.dev';
     const mobileHostname = mobileUrl.replace(/^https?:\/\//, '').split('/')[0];
-    // Skip redirect if already on mobile URL or localhost
-    if (hostname === mobileHostname || hostname === 'localhost' || hostname.startsWith('127.0.0.1') || hostname.startsWith('localhost:')) {
+    const adminUrl = process.env.ADMIN_URL || 'admin.skyber.dev';
+    const adminHostname = adminUrl.replace(/^https?:\/\//, '').split('/')[0];
+    const mainDomain = 'skyber.dev';
+    // Skip redirect for localhost
+    if (hostname === 'localhost' || hostname.startsWith('127.0.0.1') || hostname.startsWith('localhost:')) {
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$1_$40$babel$2b$core$40$7$2e$2_048eab391ea2e03c70ee64ac0670005b$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$exports$2f$index$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].next();
     }
     // Check if user is on mobile device
@@ -39,13 +42,32 @@ function middleware(request) {
     // Also check viewport width from headers (if available)
     const viewportWidth = request.headers.get('viewport-width');
     const isMobileByWidth = viewportWidth ? parseInt(viewportWidth) <= 768 : false;
-    if (isMobile || isMobileByWidth) {
-        // Build redirect URL - ensure it has protocol
-        const redirectBase = mobileUrl.startsWith('http') ? mobileUrl : `https://${mobileUrl}`;
+    const isMobileDevice = isMobile || isMobileByWidth;
+    // Check if path is a dashboard/auth route
+    const isDashboardRoute = pathname?.startsWith('/auth/dashboards') || pathname?.startsWith('/login');
+    // If user is accessing dashboard routes on main domain, redirect to admin domain
+    if (hostname === mainDomain && isDashboardRoute) {
+        const redirectBase = adminUrl.startsWith('http') ? adminUrl : `https://${adminUrl}`;
         const redirectUrl = new URL(`${redirectBase}${pathname}${search}${hash || ''}`);
-        // Perform redirect
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$1_$40$babel$2b$core$40$7$2e$2_048eab391ea2e03c70ee64ac0670005b$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$exports$2f$index$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].redirect(redirectUrl);
     }
+    // If user is on admin domain but not on dashboard routes, redirect to main domain
+    if (hostname === adminHostname && !isDashboardRoute) {
+        const redirectUrl = new URL(`https://${mainDomain}${pathname}${search}${hash || ''}`);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$1_$40$babel$2b$core$40$7$2e$2_048eab391ea2e03c70ee64ac0670005b$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$exports$2f$index$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].redirect(redirectUrl);
+    }
+    // If desktop user is trying to access m.skyber.dev, redirect to main domain
+    if (hostname === mobileHostname && !isMobileDevice) {
+        const redirectUrl = new URL(`https://${mainDomain}${pathname}${search}${hash || ''}`);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$1_$40$babel$2b$core$40$7$2e$2_048eab391ea2e03c70ee64ac0670005b$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$exports$2f$index$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].redirect(redirectUrl);
+    }
+    // If mobile user is on main domain, redirect to mobile domain
+    if (hostname === mainDomain && isMobileDevice && !isDashboardRoute) {
+        const redirectBase = mobileUrl.startsWith('http') ? mobileUrl : `https://${mobileUrl}`;
+        const redirectUrl = new URL(`${redirectBase}${pathname}${search}${hash || ''}`);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$1_$40$babel$2b$core$40$7$2e$2_048eab391ea2e03c70ee64ac0670005b$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$exports$2f$index$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].redirect(redirectUrl);
+    }
+    // Allow all other cases
     return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$1_$40$babel$2b$core$40$7$2e$2_048eab391ea2e03c70ee64ac0670005b$2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$exports$2f$index$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].next();
 }
 const config = {

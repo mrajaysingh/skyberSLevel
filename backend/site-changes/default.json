@@ -6,7 +6,7 @@
       {
         "id": "1",
         "label": "About U",
-        "href": "#about",
+        "href": "#aboutus",
         "order": 1
       },
       {
@@ -45,7 +45,7 @@
     "stickyHeader": true,
     "glassMorphismIntensity": 40
   },
-  "lastModified": "2025-11-09T06:47:43.959Z",
+  "lastModified": "2025-11-10T03:20:32.888Z",
   "version": "1.0.0",
   "hero": {
     "badgeText": "New",
