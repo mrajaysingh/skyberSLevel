@@ -1,31 +1,91 @@
 {
   "app": {
+    "[project]/app/about/page": [
+      "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2",
+      "static/media/Ethnocentric Rg-s.p.e2f21958.otf",
+      "static/media/Nasalization Rg-s.p.1176cae4.otf"
+    ],
     "[project]/app/auth/dashboards/user/super-admin/edit-site/page": [
       "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
-      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2"
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2",
+      "static/media/Ethnocentric Rg-s.p.e2f21958.otf",
+      "static/media/Nasalization Rg-s.p.1176cae4.otf"
     ],
     "[project]/app/auth/dashboards/user/super-admin/page": [
       "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
-      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2"
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2",
+      "static/media/Ethnocentric Rg-s.p.e2f21958.otf",
+      "static/media/Nasalization Rg-s.p.1176cae4.otf"
+    ],
+    "[project]/app/auth/dashboards/user/super-admin/profile/page": [
+      "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2",
+      "static/media/Ethnocentric Rg-s.p.e2f21958.otf",
+      "static/media/Nasalization Rg-s.p.1176cae4.otf"
     ],
     "[project]/app/auth/dashboards/user/super-admin/settings/email/page": [
       "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
-      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2"
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2",
+      "static/media/Ethnocentric Rg-s.p.e2f21958.otf",
+      "static/media/Nasalization Rg-s.p.1176cae4.otf"
     ],
     "[project]/app/auth/dashboards/user/super-admin/settings/integrations/page": [
       "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
-      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2"
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2",
+      "static/media/Ethnocentric Rg-s.p.e2f21958.otf",
+      "static/media/Nasalization Rg-s.p.1176cae4.otf"
+    ],
+    "[project]/app/blogs/page": [
+      "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2",
+      "static/media/Ethnocentric Rg-s.p.e2f21958.otf",
+      "static/media/Nasalization Rg-s.p.1176cae4.otf"
+    ],
+    "[project]/app/contact/page": [
+      "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2",
+      "static/media/Ethnocentric Rg-s.p.e2f21958.otf",
+      "static/media/Nasalization Rg-s.p.1176cae4.otf"
+    ],
+    "[project]/app/founder/page": [
+      "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2",
+      "static/media/Ethnocentric Rg-s.p.e2f21958.otf",
+      "static/media/Nasalization Rg-s.p.1176cae4.otf"
+    ],
+    "[project]/app/insights/page": [
+      "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2",
+      "static/media/Ethnocentric Rg-s.p.e2f21958.otf",
+      "static/media/Nasalization Rg-s.p.1176cae4.otf"
     ],
     "[project]/app/login/page": [
       "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
-      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2"
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2",
+      "static/media/Ethnocentric Rg-s.p.e2f21958.otf",
+      "static/media/Nasalization Rg-s.p.1176cae4.otf"
     ],
     "[project]/app/page": [
       "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
-      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2"
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2",
+      "static/media/Ethnocentric Rg-s.p.e2f21958.otf",
+      "static/media/Nasalization Rg-s.p.1176cae4.otf"
+    ],
+    "[project]/app/policies/page": [
+      "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2",
+      "static/media/Ethnocentric Rg-s.p.e2f21958.otf",
+      "static/media/Nasalization Rg-s.p.1176cae4.otf"
+    ],
+    "[project]/app/policies/privacy-policy/page": [
+      "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
+      "static/media/0acc7fdf55eb3220.p.532ccaa1.woff2",
+      "static/media/Ethnocentric Rg-s.p.e2f21958.otf",
+      "static/media/Nasalization Rg-s.p.1176cae4.otf"
     ]
   },
-  "appUsingSizeAdjust": false,
+  "appUsingSizeAdjust": true,
   "pages": {},
   "pagesUsingSizeAdjust": false
 }

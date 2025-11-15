@@ -35,7 +35,12 @@ const authenticateAuthjs = (req, res, next) => {
     
     next();
   } catch (error) {
-    console.error('Auth.js authentication error:', error);
+    // Check if it's a token expiration error
+    if (error.name === 'TokenExpiredError' || error.message?.includes('jwt expired')) {
+      console.log('🔑 Token Expired');
+    } else {
+      console.error('Auth.js authentication error:', error);
+    }
     return res.status(401).json({
       success: false,
       message: 'Authentication failed',

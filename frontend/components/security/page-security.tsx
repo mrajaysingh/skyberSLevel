@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { SessionExpiredProvider, useSessionExpired } from "./session-expired-provider";
+import { setSessionExpiredHandler } from "@/lib/api-client";
 
 interface SecurityContextType {
       isAuthenticated: boolean;
@@ -60,6 +61,48 @@ function SecurityProviderContent({ children }: { children: ReactNode }) {
   // Backend API URL
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
+  // Setup session expired handler to redirect on protected routes
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    
+    const handleSessionExpired = () => {
+      const currentPath = window.location.pathname;
+      const isAuthRoute = currentPath?.startsWith("/auth/dashboards");
+      const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      
+      // If on protected route, redirect immediately
+      if (isAuthRoute) {
+        sessionStorage.setItem("skyber_redirect_after_login", currentPath || "/");
+        try {
+          localStorage.removeItem("sessionToken");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("userData");
+          localStorage.removeItem("skyber_authenticated");
+        } catch (_) {}
+        setIsAuthenticated(false);
+        setUser(null);
+        
+        // On localhost, redirect to /login on same host
+        if (isLocalhost) {
+          router.push("/login");
+        } else {
+          const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || 'admin.skyber.dev';
+          const adminBase = adminUrl.startsWith('http') ? adminUrl : `https://${adminUrl}`;
+          window.location.href = `${adminBase}/login`;
+        }
+      } else {
+        // For non-protected routes, show the modal
+        showSessionExpired();
+      }
+    };
+    
+    setSessionExpiredHandler(handleSessionExpired);
+    
+    return () => {
+      setSessionExpiredHandler(() => {});
+    };
+  }, [pathname, showSessionExpired, router]);
+
   // Immediately clear cached auth when user is on the login page
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -95,11 +138,15 @@ function SecurityProviderContent({ children }: { children: ReactNode }) {
       setIsAuthenticated(false);
       setUser(null);
       
-      // Redirect to login on admin domain if on dashboard route
-      const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || 'admin.skyber.dev';
-      const adminBase = adminUrl.startsWith('http') ? adminUrl : `https://${adminUrl}`;
+      const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
       
-      if (isAuthRoute) {
+      // On localhost, always use router.push for same-host redirect
+      if (isLocalhost) {
+        router.push("/login");
+      } else if (isAuthRoute) {
+        // Redirect to login on admin domain if on dashboard route (production)
+        const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || 'admin.skyber.dev';
+        const adminBase = adminUrl.startsWith('http') ? adminUrl : `https://${adminUrl}`;
         window.location.href = `${adminBase}/login`;
       } else {
         router.push("/login");
@@ -121,9 +168,9 @@ function SecurityProviderContent({ children }: { children: ReactNode }) {
           cache: 'no-store'
         });
         if (!r.ok) {
-          // Show session expired card instead of immediate redirect
+          // Auto-redirect to login on session expiration
           if (r.status === 401) {
-            showSessionExpired();
+            redirectToLogin();
           } else {
             redirectToLogin();
           }
@@ -131,11 +178,8 @@ function SecurityProviderContent({ children }: { children: ReactNode }) {
         }
         const j = await r.json().catch(() => ({}));
         if (!j?.success) {
-          if (r.status === 401) {
-            showSessionExpired();
-          } else {
-            redirectToLogin();
-          }
+          // Auto-redirect to login on session expiration
+          redirectToLogin();
         }
       } catch (_) {
         redirectToLogin();

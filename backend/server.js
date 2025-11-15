@@ -26,6 +26,9 @@ const profileRoutes = require('./routes/profile.routes');
 const siteConfigRoutes = require('./routes/site-config.routes');
 const smtpRoutes = require('./routes/smtp.routes');
 const emailRoutes = require('./routes/email.routes');
+const imageRoutes = require('./routes/image.routes');
+const newsletterRoutes = require('./routes/newsletter.routes');
+const emailTemplateRoutes = require('./routes/email-template.routes');
 
 // Import email scheduler
 const { processScheduledEmails } = require('./controllers/email.controller');
@@ -87,6 +90,9 @@ app.use('/api/cards', require('./routes/cards.routes'));
 app.use('/api/site-config', siteConfigRoutes);
 app.use('/api/smtp', smtpRoutes);
 app.use('/api/email', emailRoutes);
+app.use('/api/images', imageRoutes);
+app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/email-templates', emailTemplateRoutes);
 // Logs route removed
 
 // 404 handler

@@ -51,6 +51,7 @@ model User {
   smtpSettings  SmtpSettings[]
   emails        Email[]
   emailDrafts   EmailDraft[]
+  emailTemplates EmailTemplate[]
   
   @@map("users")
 }
@@ -106,6 +107,7 @@ model SuperAdmin {
   smtpSettings  SmtpSettings[]
   emails        Email[]
   emailDrafts   EmailDraft[]
+  emailTemplates EmailTemplate[]
   
   @@map("super_admins")
 }
@@ -342,4 +344,62 @@ model EmailDraft {
   @@index([superAdminId])
   @@index([updatedAt])
   @@map("email_drafts")
+}
+
+// Newsletter Subscription model - Stores newsletter subscribers
+model NewsletterSubscription {
+  id            String    @id @default(uuid())
+  email         String    @unique // Subscriber email
+  status        String    @default("active") // active, unsubscribed
+  source        String?   // Where they subscribed from (e.g., "website", "dashboard")
+  ipAddress     String?   // IP address when subscribed
+  userAgent     String?   // User agent when subscribed
+  
+  // Timestamps
+  subscribedAt  DateTime  @default(now())
+  unsubscribedAt DateTime?
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([email])
+  @@index([status])
+  @@index([subscribedAt])
+  @@map("newsletter_subscriptions")
+}
+
+// Email Template model - Stores email templates
+model EmailTemplate {
+  id            String    @id @default(uuid())
+  userId        String?   // Optional: if template belongs to regular user
+  superAdminId  String?   // Optional: if template belongs to super admin
+  
+  // Template metadata
+  name          String    // Template name (e.g., "Newsletter Welcome", "Password Reset")
+  category      String?   // Template category (e.g., "newsletter", "transactional", "marketing")
+  description   String?   // Template description
+  
+  // Template content
+  subject       String    // Email subject (can contain variables like {username})
+  html          String    // HTML content (can contain variables like {username}, {email})
+  text          String?   // Plain text content
+  
+  // Variables available in template
+  variables     String[]  @default([]) // e.g., ["username", "email", "company"]
+  
+  // Status
+  isActive      Boolean   @default(true)
+  isDefault     Boolean   @default(false) // Default template for category
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  superAdmin    SuperAdmin? @relation(fields: [superAdminId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([superAdminId])
+  @@index([category])
+  @@index([isActive])
+  @@map("email_templates")
 }

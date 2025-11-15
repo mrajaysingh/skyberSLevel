@@ -24,9 +24,9 @@ async function getCurrentConfig(req, res) {
  */
 async function saveConfig(req, res) {
   try {
-    const { header, hero } = req.body;
+    const { header, hero, logoLoop, about, founder, trucomm, whyChooseUs, clientTestimonials, stayUpdated } = req.body;
 
-    // Allow saving either header or hero or both
+    // Allow saving header, hero, logoLoop, about, founder, trucomm, whyChooseUs, clientTestimonials, stayUpdated, or any combination
     const configToSave = {};
     if (header) {
       configToSave.header = header;
@@ -34,11 +34,32 @@ async function saveConfig(req, res) {
     if (hero) {
       configToSave.hero = hero;
     }
+    if (logoLoop) {
+      configToSave.logoLoop = logoLoop;
+    }
+    if (about) {
+      configToSave.about = about;
+    }
+    if (founder) {
+      configToSave.founder = founder;
+    }
+    if (trucomm) {
+      configToSave.trucomm = trucomm;
+    }
+    if (whyChooseUs) {
+      configToSave.whyChooseUs = whyChooseUs;
+    }
+    if (clientTestimonials) {
+      configToSave.clientTestimonials = clientTestimonials;
+    }
+    if (stayUpdated) {
+      configToSave.stayUpdated = stayUpdated;
+    }
 
     if (Object.keys(configToSave).length === 0) {
       return res.status(400).json({
         success: false,
-        error: 'At least one configuration (header or hero) is required'
+        error: 'At least one configuration (header, hero, logoLoop, about, founder, trucomm, whyChooseUs, clientTestimonials, or stayUpdated) is required'
       });
     }
 

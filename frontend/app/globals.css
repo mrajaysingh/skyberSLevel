@@ -1,7 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap');
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 /* Brand font for the SKYBER wordmark */
 .skyber-text { font-family: var(--font-orbitron); }
+
+/* Ethnocentric font for TRUCOMM */
+.trucomm-text { 
+  font-family: var(--font-ethnocentric), Arial, sans-serif;
+  text-transform: uppercase;
+}
+
+/* Nasalization font for navigation menu items */
+.nav-menu-item {
+  font-family: var(--font-nasalization), Arial, sans-serif;
+}
+
+/* Oxanium font for Founder link */
+.founder-link {
+  font-family: 'Oxanium', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Oxanium font for Founder text */
+.founder-text {
+  font-family: 'Oxanium', sans-serif;
+}
+
+/* Style Founder text in founder page breadcrumb */
+.founder-page nav[aria-label="Breadcrumb"] span:last-child {
+  font-family: 'Oxanium', sans-serif;
+}
 
 /* HSL design tokens used by Tailwind utilities (bg-background, text-foreground, etc.) */
 :root {
@@ -25,6 +58,7 @@
   --border: 240 5.9% 90%;
   --input: 240 5.9% 90%;
   --ring: 160 84% 39%;
+  --radius: 0.625rem;
 }
 
 .dark {
@@ -50,7 +84,7 @@
 }
 
 /* Map tokens to Tailwind v4 color names */
-@theme {
+@theme inline {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -85,6 +119,24 @@
 }
 @media (min-width: 1024px) {
   .container { padding-left: 2rem; padding-right: 2rem; }
+}
+
+/* Services page hero section */
+.hero-section {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  position: relative;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(23, 212, 146, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(20, 192, 130, 0.1) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 html, body {
@@ -821,3 +873,20 @@ label[for],
 [data-dashboard-theme="light"] .dashboard-container .text-muted-foreground {
   color: #6b7280;
 }
+
+/* Custom Text Selection Styling */
+::selection {
+  background-color: #63ddb3;
+  color: #000000;
+}
+
+::-moz-selection {
+  background-color: #63ddb3;
+  color: #000000;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50; }
+  body {
+    @apply bg-background text-foreground; } }

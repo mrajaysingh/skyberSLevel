@@ -49,6 +49,8 @@ export function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
   const isHomePage = pathname === "/";
   const isInsightsPage = pathname === "/insights";
   const isBlogsPage = pathname === "/blogs";
+  const isContactPage = pathname === "/contact";
+  const isAboutPage = pathname === "/about";
 
   // Handle menu closing
   const handleClose = () => {
@@ -92,11 +94,11 @@ export function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
   };
 
   const mainNavItems = [
-    { title: "About", href: "#about" },
+    { title: "About", href: "/about" },
     { title: "Demo", href: "/demo" },
     { title: "Insights", href: "#insights" },
     { title: "Blogs", href: "#blogs" },
-    { title: "Contact", href: "#contact" },
+    { title: "Contact", href: "/contact" },
     { title: "Policies", href: "#policies" }
   ];
 
@@ -324,7 +326,7 @@ export function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
       return;
     }
 
-    if (section === "#contact") {
+    if (section === "#contact" || section === "/contact") {
       router.push("/contact");
       handleClose();
       return;
@@ -401,11 +403,12 @@ export function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
                           }
                         }}
                         className={cn(
-                          "flex items-center justify-center p-3 rounded-lg border border-border hover:bg-secondary/50 hover:text-[#17D492] transition-colors font-medium",
+                          "nav-menu-item flex items-center justify-center p-3 rounded-lg border border-border hover:bg-secondary/50 hover:text-[#17D492] transition-colors font-medium",
                           (item.href === "#insights" && isInsightsPage) ||
                           (item.href === "#blogs" && isBlogsPage) ||
-                          (item.href === "#about" && pathname === "/about") ||
+                          (item.href === "/about" && pathname === "/about") ||
                           (item.href === "/demo" && pathname === "/demo") ||
+                          ((item.href === "/contact" || item.href === "#contact") && isContactPage) ||
                           (item.href === "#policies" && pathname.startsWith("/policies"))
                             ? "bg-secondary/50 text-[#17D492]"
                             : ""

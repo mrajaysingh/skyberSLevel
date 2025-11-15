@@ -1,0 +1,147 @@
+{
+  "date": "2025-11-13",
+  "createdAt": "2025-11-13T02:36:48.319Z",
+  "lastModified": "2025-11-13T02:36:48.319Z",
+  "latestConfig": {
+    "header": {
+      "logoUrl": "/favicon.svg",
+      "siteName": "SKYBER",
+      "navigationLinks": [
+        {
+          "id": "1",
+          "label": "About Us",
+          "href": "#aboutus",
+          "order": 1
+        },
+        {
+          "id": "2",
+          "label": "Demo",
+          "href": "/demo",
+          "order": 2
+        },
+        {
+          "id": "3",
+          "label": "Insights",
+          "href": "#insights",
+          "order": 3
+        },
+        {
+          "id": "4",
+          "label": "Blogs",
+          "href": "#blogs",
+          "order": 4
+        },
+        {
+          "id": "5",
+          "label": "Policies",
+          "href": "/policies",
+          "order": 5
+        },
+        {
+          "id": "6",
+          "label": "Contact Us",
+          "href": "#contact",
+          "order": 6
+        }
+      ],
+      "headerBgColor": "#000000",
+      "headerTextColor": "#ffffff",
+      "stickyHeader": true,
+      "glassMorphismIntensity": 40,
+      "headerTextColorLight": "#ffffff",
+      "headerTextColorDark": "#ffffff"
+    }
+  },
+  "changeLog": [
+    {
+      "timestamp": "2025-11-13T02:36:48.319Z",
+      "previousConfig": {
+        "header": {
+          "logoUrl": "/favicon.svg",
+          "siteName": "SKYBER",
+          "navigationLinks": [
+            {
+              "id": "1",
+              "label": "About U",
+              "href": "#aboutus",
+              "order": 1
+            },
+            {
+              "id": "2",
+              "label": "Demo",
+              "href": "/demo",
+              "order": 2
+            },
+            {
+              "id": "3",
+              "label": "Insights",
+              "href": "#insights",
+              "order": 3
+            },
+            {
+              "id": "4",
+              "label": "Blogs",
+              "href": "#blogs",
+              "order": 4
+            },
+            {
+              "id": "5",
+              "label": "Policies",
+              "href": "/policies",
+              "order": 5
+            },
+            {
+              "id": "6",
+              "label": "Contact Us",
+              "href": "#contact",
+              "order": 6
+            }
+          ],
+          "headerBgColor": "#000000",
+          "headerTextColor": "#ffffff",
+          "stickyHeader": true,
+          "glassMorphismIntensity": 40
+        },
+        "lastModified": "2025-11-10T03:20:32.888Z",
+        "version": "1.0.0",
+        "hero": {
+          "badgeText": "New",
+          "typeWriterPhrases": [
+            "Enhanced AI Security Features",
+            "Smart Cybersecurity & Tech",
+            "Secure Digital Experiences",
+            "Innovative Security Solutions",
+            "Secure, Develop, Design"
+          ],
+          "heading": "Secure Your Digital Future With",
+          "headingHighlight": "SKYBER",
+          "description": "Leading cybersecurity solutions and exceptional web development to protect your business and accelerate your online growth.",
+          "primaryButtonText": "Get Started",
+          "secondaryButtonText": "About Us",
+          "secondaryButtonHref": "/about",
+          "heroImageUrl": "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg",
+          "features": [
+            {
+              "id": "1",
+              "icon": "Shield",
+              "text": "99.9% Uptime"
+            },
+            {
+              "id": "2",
+              "icon": "Lock",
+              "text": "SOC 2 Certified"
+            },
+            {
+              "id": "3",
+              "icon": "Zap",
+              "text": "24/7 Support"
+            }
+          ],
+          "trustPilotUrl": "https://www.trustpilot.com/review/skyber.dev",
+          "trustPilotText": "Review us on Trustpilot"
+        }
+      },
+      "note": "Initial backup for this day"
+    }
+  ]
+}

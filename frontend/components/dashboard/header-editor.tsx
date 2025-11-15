@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Upload, Plus, X, Save, Image as ImageIcon, History, RotateCcw } from "lucide-react";
+import { Upload, Plus, X, Save, Image as ImageIcon, History, RotateCcw, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast-provider";
+import { uploadImageToS3, getImageUrl } from "@/lib/image-upload";
 
 interface NavigationLink {
   id: string;
@@ -34,9 +35,16 @@ interface HeaderConfig {
   headerTextColorLight?: string; // Text color for light theme
   headerTextColorDark?: string; // Text color for dark theme
   stickyHeader: boolean;
+  logoBrandingEnabled?: boolean;
+  navigationEnabled?: boolean;
+  stylingEnabled?: boolean;
 }
 
-export function HeaderEditor() {
+interface HeaderEditorProps {
+  onConfigChange?: (config: HeaderConfig) => void;
+}
+
+export function HeaderEditor({ onConfigChange }: HeaderEditorProps = {}) {
   const [config, setConfig] = useState<HeaderConfig>({
     logoUrl: "/favicon.svg",
     siteName: "SKYBER",
@@ -53,11 +61,15 @@ export function HeaderEditor() {
     headerTextColorLight: "#000000", // Default black for light theme
     headerTextColorDark: "#ffffff", // Default white for dark theme
     stickyHeader: true,
+    logoBrandingEnabled: true,
+    navigationEnabled: true,
+    stylingEnabled: true,
   });
 
   const [newLink, setNewLink] = useState({ label: "", href: "" });
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [backups, setBackups] = useState<any[]>([]);
   const [selectedBackup, setSelectedBackup] = useState<string>("");
   const [isRestoring, setIsRestoring] = useState(false);
@@ -70,15 +82,38 @@ export function HeaderEditor() {
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (!file) return;
+
+    setIsUploadingLogo(true);
+    try {
+      // Show preview immediately
       const reader = new FileReader();
       reader.onloadend = () => {
         setLogoPreview(reader.result as string);
-        setConfig({ ...config, logoUrl: reader.result as string });
       };
       reader.readAsDataURL(file);
+
+      // Upload to S3
+      const result = await uploadImageToS3({
+        category: 'edit-page',
+        subcategory: 'header',
+        imageKey: 'logo',
+        file
+      });
+
+      if (result.success && result.url) {
+        setConfig({ ...config, logoUrl: result.url });
+        setLogoPreview(result.url);
+        showSuccess('Success', 'Logo uploaded to S3 successfully');
+      } else {
+        showError('Upload Failed', result.error || 'Failed to upload logo');
+      }
+    } catch (error: any) {
+      showError('Upload Failed', error.message || 'Failed to upload logo');
+    } finally {
+      setIsUploadingLogo(false);
     }
   };
 
@@ -118,7 +153,28 @@ export function HeaderEditor() {
   useEffect(() => {
     loadCurrentConfig();
     loadBackups();
+    loadImageFromJson();
   }, []);
+
+  // Load image from JSON storage
+  const loadImageFromJson = async () => {
+    try {
+      const imageUrl = await getImageUrl('edit-page', 'header', 'logo');
+      if (imageUrl) {
+        setConfig(prev => ({ ...prev, logoUrl: imageUrl }));
+        setLogoPreview(imageUrl);
+      }
+    } catch (error) {
+      console.error('Error loading image from JSON:', error);
+    }
+  };
+
+  // Notify parent of config changes
+  useEffect(() => {
+    if (onConfigChange) {
+      onConfigChange(config);
+    }
+  }, [config, onConfigChange]);
 
   const loadCurrentConfig = async () => {
     try {
@@ -172,14 +228,18 @@ export function HeaderEditor() {
         return;
       }
 
-      const response = await fetch(`${API_URL}/api/site-config/backups`, {
-        headers: { 'Authorization': `Bearer ${sessionToken}` },
-        cache: 'no-store',
-      }).catch((fetchError) => {
-        // Handle network errors
-        console.error('Network error loading backups:', fetchError);
-        return null;
-      });
+      let response: Response | null = null;
+      try {
+        response = await fetch(`${API_URL}/api/site-config/backups`, {
+          headers: { 'Authorization': `Bearer ${sessionToken}` },
+          cache: 'no-store',
+        });
+      } catch (fetchError) {
+        // Handle network errors silently - backend might not be running
+        console.warn('Could not load backups (backend may be offline):', fetchError);
+        setBackups([]);
+        return;
+      }
 
       if (!response) {
         setBackups([]);
@@ -198,7 +258,7 @@ export function HeaderEditor() {
               setBackups([]);
             }
           } catch (parseError) {
-            console.error('Error parsing backups response:', parseError);
+            console.warn('Error parsing backups response:', parseError);
             setBackups([]);
           }
         } else {
@@ -209,8 +269,8 @@ export function HeaderEditor() {
         setBackups([]);
       }
     } catch (error) {
-      console.error('Error loading backups:', error);
-      // Set empty backups array on error
+      // Silently handle errors - don't break the UI if backups can't be loaded
+      console.warn('Error loading backups (non-critical):', error);
       setBackups([]);
     }
   };
@@ -248,9 +308,9 @@ export function HeaderEditor() {
         window.dispatchEvent(new Event('headerConfigUpdated'));
         // Also reload current config to reflect changes
         await loadCurrentConfig();
-        // Reload backups list (don't await to prevent blocking)
-        loadBackups().catch((err) => {
-          console.error('Error reloading backups after save:', err);
+        // Reload backups list (non-blocking, silent on error)
+        loadBackups().catch(() => {
+          // Silently ignore errors - backups loading is non-critical
         });
       } else {
         showError('Save Failed', data?.error || 'Failed to save configuration. Make sure the backend server is running.');
@@ -298,7 +358,10 @@ export function HeaderEditor() {
       if (data.success) {
         showSuccess('Restored Successfully', 'Configuration restored from backup');
         await loadCurrentConfig(); // Reload current config
-        await loadBackups(); // Reload backups list
+        // Reload backups list (non-blocking, silent on error)
+        loadBackups().catch(() => {
+          // Silently ignore errors - backups loading is non-critical
+        });
         setSelectedBackup("");
       } else {
         showError('Restore Failed', data.error || 'Failed to restore from backup');
@@ -321,26 +384,43 @@ export function HeaderEditor() {
               <CardTitle>Logo & Branding</CardTitle>
               <CardDescription>Upload your site logo and set the site name</CardDescription>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="h-8 w-8 shrink-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsLogoBrandingOpen(!isLogoBrandingOpen);
-              }}
-            >
-              {isLogoBrandingOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className={cn(
+                  "h-8 w-8",
+                  config.logoBrandingEnabled !== false ? "text-green-600" : "text-gray-400"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfig({ ...config, logoBrandingEnabled: !(config.logoBrandingEnabled !== false) });
+                }}
+              >
+                {config.logoBrandingEnabled !== false ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsLogoBrandingOpen(!isLogoBrandingOpen);
+                }}
+              >
+                {isLogoBrandingOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
         </CardHeader>
-        <div 
-          className={cn(
-            "overflow-hidden transition-all duration-300 ease-in-out",
-            isLogoBrandingOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
-          )}
-        >
-        <CardContent className="space-y-6">
+        {config.logoBrandingEnabled !== false && (
+          <div 
+            className={cn(
+              "overflow-hidden transition-all duration-300 ease-in-out",
+              isLogoBrandingOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+            )}
+          >
+          <CardContent className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="logo-upload">Site Logo</Label>
             <div className="flex items-center gap-4">
@@ -356,10 +436,10 @@ export function HeaderEditor() {
                 )}
               </div>
               <div className="flex flex-col gap-2">
-                <Button variant="outline" size="sm" asChild>
+                <Button variant="outline" size="sm" asChild disabled={isUploadingLogo}>
                   <label htmlFor="logo-upload" className="cursor-pointer">
                     <Upload className="w-4 h-4 mr-2" />
-                    Upload Logo
+                    {isUploadingLogo ? 'Uploading...' : 'Upload Logo'}
                   </label>
                 </Button>
                 <Input
@@ -386,7 +466,8 @@ export function HeaderEditor() {
             />
           </div>
         </CardContent>
-        </div>
+          </div>
+        )}
       </Card>
 
       {/* Navigation Links */}
@@ -397,26 +478,43 @@ export function HeaderEditor() {
               <CardTitle>Navigation Links</CardTitle>
               <CardDescription>Manage your header navigation menu items</CardDescription>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="h-8 w-8 shrink-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsNavigationOpen(!isNavigationOpen);
-              }}
-            >
-              {isNavigationOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className={cn(
+                  "h-8 w-8",
+                  config.navigationEnabled !== false ? "text-green-600" : "text-gray-400"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfig({ ...config, navigationEnabled: !(config.navigationEnabled !== false) });
+                }}
+              >
+                {config.navigationEnabled !== false ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsNavigationOpen(!isNavigationOpen);
+                }}
+              >
+                {isNavigationOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
         </CardHeader>
-        <div 
-          className={cn(
-            "overflow-hidden transition-all duration-300 ease-in-out",
-            isNavigationOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
-          )}
-        >
-        <CardContent className="space-y-4">
+        {config.navigationEnabled !== false && (
+          <div 
+            className={cn(
+              "overflow-hidden transition-all duration-300 ease-in-out",
+              isNavigationOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+            )}
+          >
+          <CardContent className="space-y-4">
           <div className="space-y-3">
             {config.navigationLinks.map((link) => (
               <div
@@ -469,8 +567,9 @@ export function HeaderEditor() {
               <Plus className="w-4 h-4" />
             </Button>
           </div>
-        </CardContent>
+          </CardContent>
         </div>
+        )}
       </Card>
 
       {/* Header Styling */}
@@ -481,26 +580,43 @@ export function HeaderEditor() {
               <CardTitle>Header Styling</CardTitle>
               <CardDescription>Customize the appearance of your header</CardDescription>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="h-8 w-8 shrink-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsStylingOpen(!isStylingOpen);
-              }}
-            >
-              {isStylingOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className={cn(
+                  "h-8 w-8",
+                  config.stylingEnabled !== false ? "text-green-600" : "text-gray-400"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfig({ ...config, stylingEnabled: !(config.stylingEnabled !== false) });
+                }}
+              >
+                {config.stylingEnabled !== false ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsStylingOpen(!isStylingOpen);
+                }}
+              >
+                {isStylingOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
         </CardHeader>
-        <div 
-          className={cn(
-            "overflow-hidden transition-all duration-300 ease-in-out",
-            isStylingOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
-          )}
-        >
-        <CardContent className="space-y-4">
+        {config.stylingEnabled !== false && (
+          <div 
+            className={cn(
+              "overflow-hidden transition-all duration-300 ease-in-out",
+              isStylingOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+            )}
+          >
+          <CardContent className="space-y-4">
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -605,8 +721,9 @@ export function HeaderEditor() {
               Enable Sticky Header (stays visible when scrolling)
             </Label>
           </div>
-        </CardContent>
-        </div>
+          </CardContent>
+          </div>
+        )}
       </Card>
 
       {/* Backup & Restore */}

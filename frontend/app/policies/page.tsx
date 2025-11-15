@@ -26,6 +26,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PageHero } from "@/components/ui/page-hero";
 
 const policyCategories = [
   {
@@ -198,43 +199,31 @@ export default function PoliciesPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#17D492]/10 via-transparent to-[#17D492]/5" />
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-4xl mx-auto"
-          >
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-[#17D492]/10 backdrop-blur-md border border-[#17D492]/20 mb-6">
-              <FileText className="w-4 h-4 mr-2 text-[#17D492]" />
-              Company Policies
-            </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-              SKYBER <span className="text-[#17D492]">Company Policies</span>
-            </h1>
-            <p className="text-xl text-muted-foreground mb-8">
-              Transparent, comprehensive policies that govern our operations, 
-              protect your rights, and ensure the highest standards of service delivery.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Badge variant="secondary" className="px-4 py-2">
-                <CheckCircle className="w-4 h-4 mr-2 text-[#17D492]" />
-                {totalPolicies} Total Policies
-              </Badge>
-              <Badge variant="outline" className="px-4 py-2">
-                <Shield className="w-4 h-4 mr-2" />
-                Legal Compliance
-              </Badge>
-              <Badge variant="outline" className="px-4 py-2">
-                <Lock className="w-4 h-4 mr-2" />
-                Security Focused
-              </Badge>
-            </div>
-          </motion.div>
+      <PageHero
+        breadcrumbItems={[{ label: "Policies" }]}
+        badge={{
+          icon: FileText,
+          text: "Company Policies"
+        }}
+        title="SKYBER Company Policies"
+        titleHighlight="SKYBER"
+        description="Transparent, comprehensive policies that govern our operations, protect your rights, and ensure the highest standards of service delivery."
+      >
+        <div className="flex flex-wrap justify-center gap-4">
+          <Badge variant="secondary" className="px-4 py-2">
+            <CheckCircle className="w-4 h-4 mr-2 text-[#17D492]" />
+            {totalPolicies} Total Policies
+          </Badge>
+          <Badge variant="outline" className="px-4 py-2">
+            <Shield className="w-4 h-4 mr-2" />
+            Legal Compliance
+          </Badge>
+          <Badge variant="outline" className="px-4 py-2">
+            <Lock className="w-4 h-4 mr-2" />
+            Security Focused
+          </Badge>
         </div>
-      </section>
+      </PageHero>
 
       {/* Policy Categories */}
       <section className="py-16">

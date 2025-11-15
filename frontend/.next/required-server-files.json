@@ -116,7 +116,7 @@
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "C:\\Users\\Jeet Singh\\Desktop\\backup\\skyber-full\\frontend",
+    "outputFileTracingRoot": "C:\\Users\\Jeet Singh\\Desktop\\backup\\original - edit\\frontend",
     "cacheComponents": false,
     "cacheLife": {
       "default": {
@@ -307,11 +307,11 @@
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.ts",
     "turbopack": {
-      "root": "C:\\Users\\Jeet Singh\\Desktop\\backup\\skyber-full\\frontend"
+      "root": "C:\\Users\\Jeet Singh\\Desktop\\backup\\original - edit\\frontend"
     },
     "distDirRoot": ".next"
   },
-  "appDir": "C:\\Users\\Jeet Singh\\Desktop\\backup\\skyber-full\\frontend",
+  "appDir": "C:\\Users\\Jeet Singh\\Desktop\\backup\\original - edit\\frontend",
   "relativeAppDir": "",
   "files": [
     ".next\\routes-manifest.json",

@@ -5,10 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Upload, Plus, X, Save, Image as ImageIcon } from "lucide-react";
+import { Upload, Plus, X, Save, Image as ImageIcon, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/toast-provider";
 import NextImage from "next/image";
+import { uploadImageToS3 } from "@/lib/image-upload";
 
 interface HeroFeature {
   id: string;
@@ -29,9 +30,18 @@ interface HeroConfig {
   features: HeroFeature[];
   trustPilotUrl: string;
   trustPilotText: string;
+  contentEnabled?: boolean;
+  buttonsEnabled?: boolean;
+  imageEnabled?: boolean;
+  featuresEnabled?: boolean;
+  trustPilotEnabled?: boolean;
 }
 
-export function HeroEditor() {
+interface HeroEditorProps {
+  onConfigChange?: (config: HeroConfig) => void;
+}
+
+export function HeroEditor({ onConfigChange }: HeroEditorProps = {}) {
   const [config, setConfig] = useState<HeroConfig>({
     badgeText: "New",
     typeWriterPhrases: [
@@ -53,12 +63,18 @@ export function HeroEditor() {
       { id: "2", icon: "Lock", text: "SOC 2 Certified" },
       { id: "3", icon: "Zap", text: "24/7 Support" }
     ],
-    trustPilotUrl: "https://www.trustpilot.com/review/skybersupport.me",
-    trustPilotText: "Review us on Trustpilot"
+    trustPilotUrl: "https://www.trustpilot.com/review/skyber.dev",
+    trustPilotText: "Review us on Trustpilot",
+    contentEnabled: true,
+    buttonsEnabled: true,
+    imageEnabled: true,
+    featuresEnabled: true,
+    trustPilotEnabled: true
   });
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [newPhrase, setNewPhrase] = useState("");
   const [newFeature, setNewFeature] = useState({ icon: "Shield", text: "" });
   const { showSuccess, showError } = useToast();
@@ -72,15 +88,38 @@ export function HeroEditor() {
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    try {
+      // Show preview immediately
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
-        setConfig({ ...config, heroImageUrl: reader.result as string });
       };
       reader.readAsDataURL(file);
+
+      // Upload to S3
+      const result = await uploadImageToS3({
+        category: 'edit-page',
+        subcategory: 'hero',
+        imageKey: 'hero-image',
+        file
+      });
+
+      if (result.success && result.url) {
+        setConfig({ ...config, heroImageUrl: result.url });
+        setImagePreview(result.url);
+        showSuccess('Success', 'Hero image uploaded to S3 successfully');
+      } else {
+        showError('Upload Failed', result.error || 'Failed to upload image');
+      }
+    } catch (error: any) {
+      showError('Upload Failed', error.message || 'Failed to upload image');
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -164,6 +203,13 @@ export function HeroEditor() {
     }
   };
 
+  // Notify parent of config changes
+  useEffect(() => {
+    if (onConfigChange) {
+      onConfigChange(config);
+    }
+  }, [config, onConfigChange]);
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -222,26 +268,43 @@ export function HeroEditor() {
               <CardTitle>Hero Content</CardTitle>
               <CardDescription>Edit the main hero section text and content</CardDescription>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="h-8 w-8 shrink-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsContentOpen(!isContentOpen);
-              }}
-            >
-              {isContentOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className={cn(
+                  "h-8 w-8",
+                  config.contentEnabled !== false ? "text-green-600" : "text-gray-400"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfig({ ...config, contentEnabled: !(config.contentEnabled !== false) });
+                }}
+              >
+                {config.contentEnabled !== false ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsContentOpen(!isContentOpen);
+                }}
+              >
+                {isContentOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
         </CardHeader>
-        <div 
-          className={cn(
-            "overflow-hidden transition-all duration-300 ease-in-out",
-            isContentOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
-          )}
-        >
-          <CardContent className="space-y-4">
+        {config.contentEnabled !== false && (
+          <div 
+            className={cn(
+              "overflow-hidden transition-all duration-300 ease-in-out",
+              isContentOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+            )}
+          >
+            <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="badge-text">Badge Text</Label>
               <Input
@@ -324,6 +387,7 @@ export function HeroEditor() {
             </div>
           </CardContent>
         </div>
+        )}
       </Card>
 
       {/* Buttons */}
@@ -334,26 +398,43 @@ export function HeroEditor() {
               <CardTitle>Action Buttons</CardTitle>
               <CardDescription>Configure the primary and secondary buttons</CardDescription>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="h-8 w-8 shrink-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsButtonsOpen(!isButtonsOpen);
-              }}
-            >
-              {isButtonsOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className={cn(
+                  "h-8 w-8",
+                  config.buttonsEnabled !== false ? "text-green-600" : "text-gray-400"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfig({ ...config, buttonsEnabled: !(config.buttonsEnabled !== false) });
+                }}
+              >
+                {config.buttonsEnabled !== false ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsButtonsOpen(!isButtonsOpen);
+                }}
+              >
+                {isButtonsOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
         </CardHeader>
-        <div 
-          className={cn(
-            "overflow-hidden transition-all duration-300 ease-in-out",
-            isButtonsOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
-          )}
-        >
-          <CardContent className="space-y-4">
+        {config.buttonsEnabled !== false && (
+          <div 
+            className={cn(
+              "overflow-hidden transition-all duration-300 ease-in-out",
+              isButtonsOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+            )}
+          >
+            <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="primary-button">Primary Button Text</Label>
               <Input
@@ -385,6 +466,7 @@ export function HeroEditor() {
             </div>
           </CardContent>
         </div>
+        )}
       </Card>
 
       {/* Hero Image */}
@@ -395,26 +477,43 @@ export function HeroEditor() {
               <CardTitle>Hero Image</CardTitle>
               <CardDescription>Upload or set the hero section image</CardDescription>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="h-8 w-8 shrink-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsImageOpen(!isImageOpen);
-              }}
-            >
-              {isImageOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className={cn(
+                  "h-8 w-8",
+                  config.imageEnabled !== false ? "text-green-600" : "text-gray-400"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfig({ ...config, imageEnabled: !(config.imageEnabled !== false) });
+                }}
+              >
+                {config.imageEnabled !== false ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsImageOpen(!isImageOpen);
+                }}
+              >
+                {isImageOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
         </CardHeader>
-        <div 
-          className={cn(
-            "overflow-hidden transition-all duration-300 ease-in-out",
-            isImageOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
-          )}
-        >
-          <CardContent className="space-y-4">
+        {config.imageEnabled !== false && (
+          <div 
+            className={cn(
+              "overflow-hidden transition-all duration-300 ease-in-out",
+              isImageOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+            )}
+          >
+            <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="hero-image-url">Image URL</Label>
               <Input
@@ -445,10 +544,10 @@ export function HeroEditor() {
                   )}
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Button variant="outline" size="sm" asChild>
+                  <Button variant="outline" size="sm" asChild disabled={isUploadingImage}>
                     <label htmlFor="hero-image-upload" className="cursor-pointer">
                       <Upload className="w-4 h-4 mr-2" />
-                      Upload Image
+                      {isUploadingImage ? 'Uploading...' : 'Upload Image'}
                     </label>
                   </Button>
                   <Input
@@ -466,6 +565,7 @@ export function HeroEditor() {
             </div>
           </CardContent>
         </div>
+        )}
       </Card>
 
       {/* Features */}
@@ -476,26 +576,43 @@ export function HeroEditor() {
               <CardTitle>Feature Items</CardTitle>
               <CardDescription>Manage feature items displayed in the hero</CardDescription>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="h-8 w-8 shrink-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsFeaturesOpen(!isFeaturesOpen);
-              }}
-            >
-              {isFeaturesOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className={cn(
+                  "h-8 w-8",
+                  config.featuresEnabled !== false ? "text-green-600" : "text-gray-400"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfig({ ...config, featuresEnabled: !(config.featuresEnabled !== false) });
+                }}
+              >
+                {config.featuresEnabled !== false ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsFeaturesOpen(!isFeaturesOpen);
+                }}
+              >
+                {isFeaturesOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
         </CardHeader>
-        <div 
-          className={cn(
-            "overflow-hidden transition-all duration-300 ease-in-out",
-            isFeaturesOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
-          )}
-        >
-          <CardContent className="space-y-4">
+        {config.featuresEnabled !== false && (
+          <div 
+            className={cn(
+              "overflow-hidden transition-all duration-300 ease-in-out",
+              isFeaturesOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+            )}
+          >
+            <CardContent className="space-y-4">
             <div className="space-y-3">
               {config.features.map((feature) => (
                 <div
@@ -557,7 +674,8 @@ export function HeroEditor() {
               </Button>
             </div>
           </CardContent>
-        </div>
+          </div>
+        )}
       </Card>
 
       {/* TrustPilot */}
@@ -568,26 +686,43 @@ export function HeroEditor() {
               <CardTitle>TrustPilot Link</CardTitle>
               <CardDescription>Configure the TrustPilot review link</CardDescription>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="h-8 w-8 shrink-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsTrustPilotOpen(!isTrustPilotOpen);
-              }}
-            >
-              {isTrustPilotOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className={cn(
+                  "h-8 w-8",
+                  config.trustPilotEnabled !== false ? "text-green-600" : "text-gray-400"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfig({ ...config, trustPilotEnabled: !(config.trustPilotEnabled !== false) });
+                }}
+              >
+                {config.trustPilotEnabled !== false ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsTrustPilotOpen(!isTrustPilotOpen);
+                }}
+              >
+                {isTrustPilotOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
         </CardHeader>
-        <div 
-          className={cn(
-            "overflow-hidden transition-all duration-300 ease-in-out",
-            isTrustPilotOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
-          )}
-        >
-          <CardContent className="space-y-4">
+        {config.trustPilotEnabled !== false && (
+          <div 
+            className={cn(
+              "overflow-hidden transition-all duration-300 ease-in-out",
+              isTrustPilotOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+            )}
+          >
+            <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="trustpilot-url">TrustPilot URL</Label>
               <Input
@@ -608,7 +743,8 @@ export function HeroEditor() {
               />
             </div>
           </CardContent>
-        </div>
+          </div>
+        )}
       </Card>
 
       {/* Save Button */}

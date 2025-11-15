@@ -484,7 +484,12 @@ const verifyToken = async (req, res) => {
       throw jwtError; // Re-throw to trigger error handler
     }
   } catch (error) {
-    console.error('Token verification error:', error);
+    // Check if it's a token expiration error
+    if (error.name === 'TokenExpiredError' || error.message?.includes('jwt expired')) {
+      console.log('🔑 Token Expired');
+    } else {
+      console.error('Token verification error:', error);
+    }
     res.status(401).json({
       success: false,
       message: 'Invalid or expired token'

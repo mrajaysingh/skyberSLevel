@@ -40,7 +40,12 @@ const authenticateToken = async (req, res, next) => {
       next();
     });
   } catch (error) {
-    console.error('Authentication error:', error);
+    // Check if it's a token expiration error
+    if (error.name === 'TokenExpiredError' || error.message?.includes('jwt expired')) {
+      console.log('🔑 Token Expired');
+    } else {
+      console.error('Authentication error:', error);
+    }
     return res.status(401).json({
       success: false,
       message: 'Authentication required'

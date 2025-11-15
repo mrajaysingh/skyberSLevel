@@ -19,7 +19,16 @@
     "afterFiles": [],
     "fallback": []
   },
-  "dynamicRoutes": [],
+  "dynamicRoutes": [
+    {
+      "page": "/blogs/[slug]",
+      "regex": "^/blogs/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/blogs/(?<nxtPslug>[^/]+?)(?:/)?$"
+    }
+  ],
   "staticRoutes": [
     {
       "page": "/",
@@ -40,6 +49,12 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
+      "page": "/about",
+      "regex": "^/about(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/about(?:/)?$"
+    },
+    {
       "page": "/access-required",
       "regex": "^/access\\-required(?:/)?$",
       "routeKeys": {},
@@ -58,6 +73,18 @@
       "namedRegex": "^/auth/dashboards/user/super\\-admin(?:/)?$"
     },
     {
+      "page": "/auth/dashboards/user/super-admin/content/pages",
+      "regex": "^/auth/dashboards/user/super\\-admin/content/pages(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/auth/dashboards/user/super\\-admin/content/pages(?:/)?$"
+    },
+    {
+      "page": "/auth/dashboards/user/super-admin/content/pages/about-us",
+      "regex": "^/auth/dashboards/user/super\\-admin/content/pages/about\\-us(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/auth/dashboards/user/super\\-admin/content/pages/about\\-us(?:/)?$"
+    },
+    {
       "page": "/auth/dashboards/user/super-admin/edit-site",
       "regex": "^/auth/dashboards/user/super\\-admin/edit\\-site(?:/)?$",
       "routeKeys": {},
@@ -68,6 +95,36 @@
       "regex": "^/auth/dashboards/user/super\\-admin/profile(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/auth/dashboards/user/super\\-admin/profile(?:/)?$"
+    },
+    {
+      "page": "/auth/dashboards/user/super-admin/settings/email",
+      "regex": "^/auth/dashboards/user/super\\-admin/settings/email(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/auth/dashboards/user/super\\-admin/settings/email(?:/)?$"
+    },
+    {
+      "page": "/auth/dashboards/user/super-admin/settings/integrations",
+      "regex": "^/auth/dashboards/user/super\\-admin/settings/integrations(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/auth/dashboards/user/super\\-admin/settings/integrations(?:/)?$"
+    },
+    {
+      "page": "/blogs",
+      "regex": "^/blogs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/blogs(?:/)?$"
+    },
+    {
+      "page": "/careers",
+      "regex": "^/careers(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/careers(?:/)?$"
+    },
+    {
+      "page": "/contact",
+      "regex": "^/contact(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/contact(?:/)?$"
     },
     {
       "page": "/demo",
@@ -82,10 +139,136 @@
       "namedRegex": "^/favicon\\.ico(?:/)?$"
     },
     {
+      "page": "/founder",
+      "regex": "^/founder(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/founder(?:/)?$"
+    },
+    {
+      "page": "/insights",
+      "regex": "^/insights(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/insights(?:/)?$"
+    },
+    {
       "page": "/login",
       "regex": "^/login(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/policies",
+      "regex": "^/policies(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies(?:/)?$"
+    },
+    {
+      "page": "/policies/acceptable-use-policy",
+      "regex": "^/policies/acceptable\\-use\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/acceptable\\-use\\-policy(?:/)?$"
+    },
+    {
+      "page": "/policies/accessibility-policy",
+      "regex": "^/policies/accessibility\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/accessibility\\-policy(?:/)?$"
+    },
+    {
+      "page": "/policies/children-privacy-policy",
+      "regex": "^/policies/children\\-privacy\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/children\\-privacy\\-policy(?:/)?$"
+    },
+    {
+      "page": "/policies/client-onboarding-policy",
+      "regex": "^/policies/client\\-onboarding\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/client\\-onboarding\\-policy(?:/)?$"
+    },
+    {
+      "page": "/policies/cookie-policy",
+      "regex": "^/policies/cookie\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/cookie\\-policy(?:/)?$"
+    },
+    {
+      "page": "/policies/data-protection-policy",
+      "regex": "^/policies/data\\-protection\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/data\\-protection\\-policy(?:/)?$"
+    },
+    {
+      "page": "/policies/disclaimer",
+      "regex": "^/policies/disclaimer(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/disclaimer(?:/)?$"
+    },
+    {
+      "page": "/policies/environmental-policy",
+      "regex": "^/policies/environmental\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/environmental\\-policy(?:/)?$"
+    },
+    {
+      "page": "/policies/gdpr-compliance",
+      "regex": "^/policies/gdpr\\-compliance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/gdpr\\-compliance(?:/)?$"
+    },
+    {
+      "page": "/policies/intellectual-property-policy",
+      "regex": "^/policies/intellectual\\-property\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/intellectual\\-property\\-policy(?:/)?$"
+    },
+    {
+      "page": "/policies/payment-billing-policy",
+      "regex": "^/policies/payment\\-billing\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/payment\\-billing\\-policy(?:/)?$"
+    },
+    {
+      "page": "/policies/privacy-policy",
+      "regex": "^/policies/privacy\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/privacy\\-policy(?:/)?$"
+    },
+    {
+      "page": "/policies/refund-cancellation-policy",
+      "regex": "^/policies/refund\\-cancellation\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/refund\\-cancellation\\-policy(?:/)?$"
+    },
+    {
+      "page": "/policies/security-policy",
+      "regex": "^/policies/security\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/security\\-policy(?:/)?$"
+    },
+    {
+      "page": "/policies/service-level-agreement",
+      "regex": "^/policies/service\\-level\\-agreement(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/service\\-level\\-agreement(?:/)?$"
+    },
+    {
+      "page": "/policies/support-policy",
+      "regex": "^/policies/support\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/support\\-policy(?:/)?$"
+    },
+    {
+      "page": "/policies/terms-conditions",
+      "regex": "^/policies/terms\\-conditions(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/terms\\-conditions(?:/)?$"
+    },
+    {
+      "page": "/policies/transparency-ethics-policy",
+      "regex": "^/policies/transparency\\-ethics\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/policies/transparency\\-ethics\\-policy(?:/)?$"
     },
     {
       "page": "/protected",

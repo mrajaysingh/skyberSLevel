@@ -14,7 +14,7 @@ const scrollToTop = () => {
 
 const Footer = () => {
   return (
-    <footer className="bg-secondary/50 dark:bg-secondary/20 text-foreground rounded-tl-[25px] rounded-tr-[25px] border-t border-[#14C082]">
+    <footer className="relative z-20 text-foreground rounded-tl-[25px] rounded-tr-[25px] border-t border-[#14C082]" style={{ backgroundColor: '#09090B' }}>
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
@@ -53,6 +53,11 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-lg mb-4">Company</h3>
             <ul className="space-y-2">
+              <li>
+                <Link href="/founder" className="founder-link text-[#17D492] hover:text-[#14c082] transition-colors">
+                  Founder
+                </Link>
+              </li>
               <li>
                 <Link href="#about" className="text-muted-foreground hover:text-foreground transition-colors">
                   About Us
@@ -166,7 +171,7 @@ const Footer = () => {
             {/* TrustPilot Button - Between Copyright and Policy Links */}
             <div className="mb-4 md:mb-0">
               <a 
-                href="https://www.trustpilot.com/review/skybersupport.me" 
+                href="https://www.trustpilot.com/review/skyber.dev" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 border border-[#17D492]/30 rounded-lg bg-white hover:border-[#17D492] transition-colors cursor-pointer hover:shadow-md shadow-sm"

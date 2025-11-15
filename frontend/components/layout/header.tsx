@@ -39,12 +39,12 @@ const Header = () => {
     logoUrl: "/favicon.svg",
     siteName: "SKYBER",
     navigationLinks: [
-      { id: "1", label: "About Us", href: "#about", order: 1 },
+      { id: "1", label: "About Us", href: "/about", order: 1 },
       { id: "2", label: "Demo", href: "/demo", order: 2 },
       { id: "3", label: "Insights", href: "#insights", order: 3 },
       { id: "4", label: "Blogs", href: "#blogs", order: 4 },
       { id: "5", label: "Policies", href: "/policies", order: 5 },
-      { id: "6", label: "Contact Us", href: "#contact", order: 6 },
+      { id: "6", label: "Contact Us", href: "/contact", order: 6 },
     ],
     glassMorphismIntensity: 40, // Default 40% opacity
     headerTextColor: "#000000", // Legacy - kept for backward compatibility
@@ -60,6 +60,8 @@ const Header = () => {
   const isBlogsPage = pathname === "/blogs";
   const isDemoPage = pathname === "/demo";
   const isLoginPage = pathname === "/login";
+  const isContactPage = pathname === "/contact";
+  const isAboutPage = pathname === "/about";
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -67,18 +69,29 @@ const Header = () => {
   useEffect(() => {
     const loadHeaderConfig = async () => {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        
         const response = await fetch(`${API_URL}/api/site-config/current`, {
           cache: 'no-store',
           headers: {
             'Cache-Control': 'no-cache'
-          }
+          },
+          signal: controller.signal,
+        }).catch((fetchError) => {
+          // Network error or fetch failed
+          clearTimeout(timeoutId);
+          throw fetchError;
         });
+        
+        clearTimeout(timeoutId);
+        
         if (response.ok) {
           // Check if response is JSON before parsing
           const contentType = response.headers.get("content-type");
           if (contentType && contentType.includes("application/json")) {
-            const data = await response.json();
-            if (data.success && data.data.header) {
+            const data = await response.json().catch(() => null);
+            if (data?.success && data.data?.header) {
               const loadedConfig = data.data.header;
               // Handle backward compatibility: if headerBgColor exists but glassMorphismIntensity doesn't, set default
               if (!loadedConfig.glassMorphismIntensity && loadedConfig.headerBgColor) {
@@ -103,8 +116,15 @@ const Header = () => {
             }
           }
         }
-      } catch (error) {
-        console.error('Error loading header config:', error);
+      } catch (error: any) {
+        // Silently handle errors - use default config
+        // Only log in development mode
+        if (process.env.NODE_ENV === 'development') {
+          // Suppress network errors in console - they're expected when backend is not running
+          if (error?.name !== 'AbortError' && error?.message !== 'Failed to fetch') {
+            console.warn('Header config not available:', error?.message || 'API unavailable');
+          }
+        }
         // Keep default config on error
       }
     };
@@ -230,7 +250,7 @@ const Header = () => {
       return;
     }
 
-    if (section === "#contact") {
+    if (section === "#contact" || section === "/contact") {
       router.push("/contact");
       return;
     }
@@ -298,23 +318,26 @@ const Header = () => {
             </Link>
           </div>
 
-          <nav className="hidden md:flex items-center space-x-6">
-            <div className="flex items-center space-x-4">
+          <nav className="hidden md:flex items-center space-x-6 overflow-visible">
+            <div className="flex items-center space-x-4 overflow-visible">
               {headerConfig.navigationLinks
                 .sort((a, b) => a.order - b.order)
                 .map((link) => {
                   const isCurrentPage = pathname === link.href || 
+                    (link.href === "/about" && isAboutPage) ||
                     (link.href === "#insights" && isInsightsPage) ||
                     (link.href === "#blogs" && isBlogsPage) ||
-                    (link.href === "/demo" && isDemoPage);
+                    (link.href === "/demo" && isDemoPage) ||
+                    ((link.href === "/contact" || link.href === "#contact") && isContactPage);
                   
                   return (
-                    <a
+                    <Link
                       key={link.id}
                       href={link.href}
                       onClick={(e) => link.href.startsWith('#') ? handleNavClick(e, link.href) : undefined}
                       className={cn(
-                        "relative px-4 py-2 rounded-full transition-colors hover:bg-accent hover:text-accent-foreground group",
+                        "nav-menu-item relative px-4 py-2 rounded-[20px] transition-all duration-200 group overflow-hidden",
+                        "hover:bg-accent hover:text-accent-foreground",
                         isCurrentPage && "bg-accent text-accent-foreground"
                       )}
                     >
@@ -323,7 +346,7 @@ const Header = () => {
                         "absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-[#17D492] transition-all duration-300 ease-out",
                         isCurrentPage ? "w-[calc(100%-2rem)]" : "w-0 group-hover:w-[calc(100%-2rem)]"
                       )}></span>
-                    </a>
+                    </Link>
                   );
                 })}
             </div>

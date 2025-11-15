@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { EmailTemplateEditor } from "@/components/dashboard/email-template-editor";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -40,6 +41,14 @@ interface Email {
     fromName: string;
   };
 }
+
+// Helper function to check if email is from newsletter
+const isNewsletterEmail = (email: Email): boolean => {
+  return email.subject?.toLowerCase().includes('newsletter') || 
+         email.subject?.toLowerCase().includes('welcome') ||
+         email.html?.toLowerCase().includes('newsletter') ||
+         false;
+};
 
 interface EmailDraft {
   id: string;
@@ -555,6 +564,10 @@ export default function EmailComposePage() {
                     <FileText className="h-4 w-4 mr-2" />
                     Drafts ({drafts.length})
                   </TabsTrigger>
+                  <TabsTrigger value="templates">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Templates
+                  </TabsTrigger>
                 </TabsList>
 
                 {/* Compose Tab */}
@@ -725,7 +738,9 @@ export default function EmailComposePage() {
                         <p className="text-muted-foreground text-center py-8">No sent emails</p>
                       ) : (
                         <div className="space-y-4">
-                          {sentEmails.map((email) => (
+                          {sentEmails.map((email) => {
+                            const isNewsletter = isNewsletterEmail(email);
+                            return (
                             <div key={email.id} className="border rounded-lg p-4 space-y-2">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -739,6 +754,11 @@ export default function EmailComposePage() {
                                   <Badge variant={email.status === 'sent' ? 'default' : 'secondary'}>
                                     {email.status}
                                   </Badge>
+                                  {isNewsletter && (
+                                    <Badge variant="outline" className="text-xs">
+                                      📧 Newsletter
+                                    </Badge>
+                                  )}
                                   <span className="text-sm font-medium">{email.subject}</span>
                                 </div>
                                 <span className="text-xs text-muted-foreground">
@@ -766,7 +786,8 @@ export default function EmailComposePage() {
                                 )}
                               </div>
                             </div>
-                          ))}
+                          );
+                          })}
                         </div>
                       )}
                     </CardContent>
@@ -865,6 +886,11 @@ export default function EmailComposePage() {
                       )}
                     </CardContent>
                   </Card>
+                </TabsContent>
+
+                {/* Templates Tab */}
+                <TabsContent value="templates" className="space-y-4">
+                  <EmailTemplateEditor />
                 </TabsContent>
               </Tabs>
             </DashboardBody>

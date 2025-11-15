@@ -119,6 +119,10 @@ const twoStepAuthenticate = async (req, res, next) => {
       return next();
     } catch (passportError) {
       // Passport JWT verification failed
+      // Check if it's a token expiration error
+      if (passportError.name === 'TokenExpiredError' || passportError.message?.includes('jwt expired')) {
+        console.log('🔑 Token Expired');
+      }
       return res.status(401).json({
         success: false,
         message: 'Step 2 failed: Invalid or expired Passport.js token',
@@ -128,7 +132,12 @@ const twoStepAuthenticate = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.error('Two-step authentication error:', error);
+    // Check if it's a token expiration error
+    if (error.name === 'TokenExpiredError' || error.message?.includes('jwt expired')) {
+      console.log('🔑 Token Expired');
+    } else {
+      console.error('Two-step authentication error:', error);
+    }
     return res.status(500).json({
       success: false,
       message: 'Authentication error occurred',

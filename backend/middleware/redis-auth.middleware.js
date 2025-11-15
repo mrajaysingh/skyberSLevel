@@ -38,6 +38,10 @@ const authenticateRedis = async (req, res, next) => {
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-super-secret-jwt-key');
     } catch (jwtError) {
+      // Check if it's a token expiration error
+      if (jwtError.name === 'TokenExpiredError' || jwtError.message?.includes('jwt expired')) {
+        console.log('🔑 Token Expired');
+      }
       return res.status(401).json({
         success: false,
         message: 'Invalid or expired token',
@@ -202,7 +206,12 @@ const authenticateRedis = async (req, res, next) => {
     return next();
 
   } catch (error) {
-    console.error('Authentication error:', error);
+    // Check if it's a token expiration error
+    if (error.name === 'TokenExpiredError' || error.message?.includes('jwt expired')) {
+      console.log('🔑 Token Expired');
+    } else {
+      console.error('Authentication error:', error);
+    }
     return res.status(500).json({
       success: false,
       message: 'Authentication error occurred',

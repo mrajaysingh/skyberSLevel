@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Shield, Lock, Zap, Star, Check, Award, Globe, Heart } from "lucide-react";
+import { Shield, Lock, Zap, Star, Check, Award, Globe, Heart, ChevronDown } from "lucide-react";
 import { TypeWriter } from "@/components/ui/TypeWriter";
 import { AnimatedMesh } from "@/components/ui/animated-mesh";
 import { AnimatedButton } from "@/components/ui/animated-button";
@@ -167,17 +167,33 @@ export const Hero = React.memo(() => {
             'Cache-Control': 'no-cache'
           }
         });
-        if (response.ok) {
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
+        
+        if (!response.ok) {
+          // Non-critical error - backend might be offline or endpoint doesn't exist
+          return;
+        }
+        
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          try {
             const data = await response.json();
-            if (data.success && data.data.hero) {
+            if (data.success && data.data?.hero) {
               setHeroConfig(data.data.hero);
             }
+          } catch (parseError) {
+            // Non-critical error - invalid JSON response
+            console.warn('Error parsing hero config response:', parseError);
           }
         }
-      } catch (error) {
-        console.error('Error loading hero config:', error);
+      } catch (error: any) {
+        // Handle network errors gracefully - backend might not be running
+        // This is non-critical as the component will use default values
+        if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+          // Silently handle network errors - backend might not be running
+          // Component will use default values
+        } else {
+          console.warn('Error loading hero config (non-critical):', error?.message || error);
+        }
       }
     };
 
@@ -195,7 +211,7 @@ export const Hero = React.memo(() => {
     };
   }, [API_URL]);
 
-  const trustPilotUrl = heroConfig?.trustPilotUrl || "https://www.trustpilot.com/review/skybersupport.me";
+  const trustPilotUrl = heroConfig?.trustPilotUrl || "https://www.trustpilot.com/review/skyber.dev";
   const trustPilotText = heroConfig?.trustPilotText || "Review us on Trustpilot";
 
   return (
@@ -209,6 +225,35 @@ export const Hero = React.memo(() => {
         </div>
       </div>
       
+      {/* Scroll Down Animation - Bottom Center */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+        >
+          <motion.div
+            animate={{
+              y: [0, 10, 0],
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="flex flex-col items-center justify-center cursor-pointer"
+            onClick={() => {
+              window.scrollTo({
+                top: window.innerHeight,
+                behavior: 'smooth'
+              });
+            }}
+          >
+            <ChevronDown className="w-6 h-6 text-[#17D492]" />
+          </motion.div>
+        </motion.div>
+      </div>
+
       {/* TrustPilot Button - Full Width Canvas, Bottom Right */}
       <div className="absolute bottom-0 right-0 z-20 pr-3 pb-3">
         <a 
@@ -228,4 +273,5 @@ export const Hero = React.memo(() => {
 });
 
 Hero.displayName = 'Hero';
+
 

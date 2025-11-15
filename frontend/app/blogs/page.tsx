@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHero } from "@/components/ui/page-hero";
 import Link from "next/link";
 
 // Helper function to generate slug from title
@@ -202,37 +203,24 @@ export default function BlogsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#17D492]/10 via-transparent to-[#17D492]/5" />
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-4xl mx-auto"
-          >
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-              Insights & <span className="text-[#17D492]">Knowledge</span>
-            </h1>
-            <p className="text-xl text-muted-foreground mb-8">
-              Stay ahead of the curve with our expert insights on cybersecurity, 
-              web development, and technology trends.
-            </p>
-            
-            {/* Search Bar */}
-            <div className="relative max-w-2xl mx-auto">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-              <Input
-                type="text"
-                placeholder="Search articles, topics, or authors..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 pr-4 py-4 text-lg border-2 border-border focus:border-[#17D492] focus:ring-[#17D492]/20"
-              />
-            </div>
-          </motion.div>
+      <PageHero
+        breadcrumbItems={[{ label: "Blogs" }]}
+        title="Insights & Knowledge"
+        titleHighlight="Knowledge"
+        description="Stay ahead of the curve with our expert insights on cybersecurity, web development, and technology trends."
+      >
+        {/* Search Bar */}
+        <div className="relative max-w-2xl mx-auto">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+          <Input
+            type="text"
+            placeholder="Search articles, topics, or authors..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-12 pr-4 py-4 text-lg border-2 border-border focus:border-[#17D492] focus:ring-[#17D492]/20"
+          />
         </div>
-      </section>
+      </PageHero>
 
       {/* Categories */}
       <section className="py-16 bg-muted/30">

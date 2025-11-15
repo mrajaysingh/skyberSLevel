@@ -284,20 +284,42 @@ export default function IntegrationsPage() {
   const loadLogs = async () => {
     try {
       const sessionToken = typeof window !== 'undefined' ? localStorage.getItem('sessionToken') : null;
+      if (!sessionToken) {
+        setLogs([]);
+        return;
+      }
+
       const response = await fetch(`${API_URL}/api/smtp/logs${selectedSmtp?.id ? `?smtpId=${selectedSmtp.id}` : ''}`, {
         headers: {
-          ...(sessionToken ? { 'Authorization': `Bearer ${sessionToken}` } : {})
+          'Authorization': `Bearer ${sessionToken}`
         },
       });
 
-      if (!response.ok) throw new Error('Failed to load logs');
+      if (!response.ok) {
+        // Try to get error message from response
+        let errorMessage = 'Failed to load logs';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        console.warn('Failed to load logs:', errorMessage);
+        setLogs([]);
+        return;
+      }
 
       const result = await response.json();
       if (result.success && result.data) {
         setLogs(result.data);
+      } else {
+        setLogs([]);
       }
-    } catch (error) {
-      console.error('Error loading logs:', error);
+    } catch (error: any) {
+      // Handle network errors or other exceptions gracefully
+      console.warn('Error loading logs (non-critical):', error?.message || error);
+      setLogs([]);
     }
   };
 

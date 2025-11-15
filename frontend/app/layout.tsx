@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Orbitron } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { SecurityProvider } from "@/components/security/page-security";
@@ -37,6 +38,20 @@ const orbitron = Orbitron({
   fallback: ["Arial", "sans-serif"],
 });
 
+const ethnocentric = localFont({
+  src: "../public/font/Ethnocentric Rg.otf",
+  variable: "--font-ethnocentric",
+  display: "swap",
+  fallback: ["Arial", "sans-serif"],
+});
+
+const nasalization = localFont({
+  src: "../public/font/Nasalization Rg.otf",
+  variable: "--font-nasalization",
+  display: "swap",
+  fallback: ["Arial", "sans-serif"],
+});
+
 export const metadata: Metadata = {
   title: "SKYBER - Protect. Build. Evolve.",
   description: "SKYBER is a security-minded studio crafting resilient digital products. From idea to launch, we embed privacy, performance and maintainability into every decision.",
@@ -58,7 +73,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${orbitron.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${orbitron.variable} ${ethnocentric.variable} ${nasalization.variable}`} suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <meta name="theme-color" content="#17D492" />

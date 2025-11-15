@@ -2,73 +2,15 @@
 
 import React from "react";
 import { Button } from "./button";
-import { useRouter } from "next/navigation";
 
 interface SessionExpiredCardProps {
-  onRefresh?: () => void;
-  onLogin?: () => void;
+  onClose?: () => void;
 }
 
-export function SessionExpiredCard({ onRefresh, onLogin }: SessionExpiredCardProps) {
-  const router = useRouter();
-
-  const handleRefresh = async () => {
-    if (onRefresh) {
-      onRefresh();
-    } else {
-      // Try to refresh token
-      const refreshToken = localStorage.getItem("refreshToken");
-      if (refreshToken) {
-        try {
-          const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-          const response = await fetch(`${API_URL}/api/auth/refresh`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ refreshToken }),
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.data?.sessionToken) {
-              localStorage.setItem("sessionToken", data.data.sessionToken);
-              if (data.data.refreshToken) {
-                localStorage.setItem("refreshToken", data.data.refreshToken);
-              }
-              window.location.reload();
-              return;
-            }
-          }
-        } catch (error) {
-          console.error("Token refresh failed:", error);
-        }
-      }
-      // If refresh fails, redirect to login
-      handleLogin();
-    }
-  };
-
-  const handleLogin = () => {
-    if (onLogin) {
-      onLogin();
-    } else {
-      // Clear all auth data
-      localStorage.removeItem("sessionToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("userData");
-      localStorage.removeItem("skyber_authenticated");
-      
-      // Redirect to login
-      const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || 'admin.skyber.dev';
-      const adminBase = adminUrl.startsWith('http') ? adminUrl : `https://${adminUrl}`;
-      const currentPath = window.location.pathname;
-      
-      if (currentPath.startsWith('/auth/dashboards')) {
-        window.location.href = `${adminBase}/login`;
-      } else {
-        router.push("/login");
-      }
+export function SessionExpiredCard({ onClose }: SessionExpiredCardProps) {
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
     }
   };
 
@@ -137,25 +79,16 @@ export function SessionExpiredCard({ onRefresh, onLogin }: SessionExpiredCardPro
             Your session has expired!
           </h4>
           <p className="text-muted-foreground font-medium">
-            Your session token has expired. Please refresh your session or log in again.
+            Your session token has expired.
           </p>
         </div>
-        <div className="pt-5 pb-6 px-6 text-right bg-muted/50 border-t">
-          <div className="flex flex-col sm:flex-row gap-2 justify-end">
-            <Button
-              onClick={handleLogin}
-              variant="outline"
-              className="w-full sm:w-auto"
-            >
-              Go to Login
-            </Button>
-            <Button
-              onClick={handleRefresh}
-              className="w-full sm:w-auto bg-primary hover:bg-primary/90"
-            >
-              Refresh Session
-            </Button>
-          </div>
+        <div className="pt-5 pb-6 px-6 text-center bg-muted/50 border-t">
+          <Button
+            onClick={handleClose}
+            className="w-full sm:w-auto bg-primary hover:bg-primary/90"
+          >
+            Close
+          </Button>
         </div>
       </div>
     </div>
